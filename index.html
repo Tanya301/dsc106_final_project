@@ -3,13 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient data</title>
+    <title>Surgical Pathways Sankey Diagram</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="global.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Visualization 👍</h1>
+        <h1>Surgical Pathways and Outcomes</h1>
+        <div class="description">
+            This interactive visualization shows the journey of surgical patients from their initial department through different surgical approaches to their ultimate outcomes, revealing patterns in how different surgical pathways affect patient recovery.
+        </div>
         
+        <div class="step-indicator">
+            <div class="step active">1<div class="step-line"></div></div>
+            <div class="step">2<div class="step-line"></div></div>
+            <div class="step">3</div>
+        </div>
+        
+        <div class="controls">
+            <button id="resetBtn">Reset View</button>
+            <button id="animateBtn">Animate Diagram</button>
+            <button id="prevBtn" disabled>Previous Step</button>
+            <button id="nextBtn">Next Step</button>
+        </div>
+        
+        <div id="chart"></div>
+        
+        <div class="info-box">
+            <strong>How to interact:</strong>
+            <ul>
+                <li>Hover over connections to see the patient flow</li>
+                <li>Click on a node to filter the diagram and focus on that pathway</li>
+                <li>Use the animation controls to see the diagram build step by step</li>
+                <li>Use the Reset button to clear any filters and return to the full view</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- External scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <!-- Link to our JavaScript file -->
+    <script src="surgical-pathways.js"></script>
 </body>
 </html>
