@@ -27,25 +27,20 @@ async function loadData() {
                             createRealDataStructure(results.data);
                         } catch (error) {
                             console.error("Error processing CSV data:", error);
-                            useSampleData();
                         }
                     } else {
                         console.error("No data rows found in CSV");
-                        useSampleData();
                     }
                 },
                 error: function(error) {
                     console.error("Error parsing CSV:", error);
-                    useSampleData();
                 }
             });
         } catch (error) {
             console.error("Error fetching CSV file:", error);
-            useSampleData();
         }
     } catch (error) {
         console.error("Unexpected error:", error);
-        useSampleData();
     }
 }
 
@@ -63,7 +58,6 @@ function createRealDataStructure(rawData) {
     
     if (validRows.length === 0) {
         console.error("No valid data rows found with required fields");
-        useSampleData();
         return;
     }
     
@@ -160,53 +154,6 @@ function createRealDataStructure(rawData) {
     });
     
     sankeyData = { nodes: nodes, links: links };
-    createSankeyDiagram();
-}
-
-// Use sample data if real data cannot be loaded
-function useSampleData() {
-    console.log("Using sample data");
-    sankeyData = {
-        nodes: [
-            {id: "General surgery", name: "General Surgery", type: "department"},
-            {id: "Gynecology", name: "Gynecology", type: "department"},
-            {id: "Thoracic surgery", name: "Thoracic Surgery", type: "department"},
-            {id: "Urology", name: "Urology", type: "department"},
-            {id: "Open", name: "Open Surgery", type: "approach"},
-            {id: "Videoscopic", name: "Videoscopic", type: "approach"},
-            {id: "Robotic", name: "Robotic Surgery", type: "approach"},
-            {id: "Survived - Short Stay", name: "Survived (< 3 days)", type: "outcome"},
-            {id: "Survived - Medium Stay", name: "Survived (3-7 days)", type: "outcome"},
-            {id: "Survived - Long Stay", name: "Survived (> 7 days)", type: "outcome"},
-            {id: "Died", name: "Died", type: "outcome"}
-        ],
-        links: [
-            {source: "General surgery", target: "Open", value: 1200},
-            {source: "General surgery", target: "Videoscopic", value: 900},
-            {source: "General surgery", target: "Robotic", value: 200},
-            {source: "Gynecology", target: "Open", value: 300},
-            {source: "Gynecology", target: "Videoscopic", value: 450},
-            {source: "Gynecology", target: "Robotic", value: 250},
-            {source: "Thoracic surgery", target: "Open", value: 500},
-            {source: "Thoracic surgery", target: "Videoscopic", value: 350},
-            {source: "Thoracic surgery", target: "Robotic", value: 150},
-            {source: "Urology", target: "Open", value: 700},
-            {source: "Urology", target: "Videoscopic", value: 300},
-            {source: "Urology", target: "Robotic", value: 100},
-            {source: "Open", target: "Survived - Short Stay", value: 900},
-            {source: "Open", target: "Survived - Medium Stay", value: 1600},
-            {source: "Open", target: "Survived - Long Stay", value: 650},
-            {source: "Open", target: "Died", value: 100},
-            {source: "Videoscopic", target: "Survived - Short Stay", value: 850},
-            {source: "Videoscopic", target: "Survived - Medium Stay", value: 450},
-            {source: "Videoscopic", target: "Survived - Long Stay", value: 40},
-            {source: "Videoscopic", target: "Died", value: 10},
-            {source: "Robotic", target: "Survived - Short Stay", value: 350},
-            {source: "Robotic", target: "Survived - Medium Stay", value: 230},
-            {source: "Robotic", target: "Survived - Long Stay", value: 15},
-            {source: "Robotic", target: "Died", value: 5}
-        ]
-    };
     createSankeyDiagram();
 }
 
@@ -893,7 +840,6 @@ function createSankeyDiagram() {
     } catch (error) {
         console.error("Error creating Sankey diagram:", error);
         d3.select("#chart").html("<div class='loading'>Error creating visualization. Using sample data instead.</div>");
-        useSampleData();
     }
 }
 
