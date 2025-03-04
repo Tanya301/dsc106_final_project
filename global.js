@@ -82,11 +82,10 @@ async function loadData() {
     }
 }
 
-// Create a proper data structure from real data
 function createRealDataStructure(rawData) {
     console.log("Processing data...");
     
-    // Filter out rows missing key values - ensure we have department, approach, and death_inhosp
+    // Filter out rows missing key values -- ensure we have department, approach, and death_inhosp
     const validRows = rawData.filter(row => 
         row &&
         row.department &&
@@ -375,9 +374,6 @@ function createSankeyDiagram() {
                 .on("mouseout", function() {
                     tooltip.transition().duration(500).style("opacity", 0);
                 });
-                // Continued from previous code...
-
-// Continued from previous code...
 
             // Add interactivity for nodes
             svg.selectAll("rect")
@@ -727,9 +723,7 @@ function createSankeyDiagram() {
                         d3.select("#resetBtn").property("disabled", false);
                         }, 500); // End of setTimeout
                     });
-                
-                // Text is removed as hover functionality provides this information effectively
-                
+                                
                 // Update step indicators
                 d3.selectAll(".step").classed("active", (d, i) => i <= currentAnimationStep);
                 
