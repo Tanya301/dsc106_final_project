@@ -838,6 +838,17 @@ function createSankeyDiagram() {
                 
             runAnimation();
         });
+
+        // Add click handlers to step indicators
+        d3.selectAll(".step").on("click", function(event) {
+            const steps = d3.selectAll(".step").nodes();
+            const index = steps.indexOf(this);
+            currentAnimationStep = index;
+            // Ensure all nodes are visible when changing steps
+            svg.selectAll(".nodes g").style("display", "block");
+            svg.selectAll(".link").style("display", "block");
+            runAnimation();
+        });
         
 
         // Create legend
