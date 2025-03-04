@@ -1,3 +1,41 @@
+// - - - Navigation - - - //
+const ARE_WE_HOME = document.documentElement.classList.contains('home');
+
+let pages = [
+    { url: '', title: 'Home' },
+    { url: 'writeup.html', title: 'Writeup' },
+];
+
+let nav = document.createElement('nav');
+document.body.prepend(nav);
+
+// Get the directory path from the current URL
+const currentPath = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
+
+for (let p of pages) {
+    let url = p.url;
+    let title = p.title;
+    
+    // Construct the correct URL by combining current directory path with the page URL
+    url = currentPath + url;
+    
+    let a = document.createElement('a');
+    a.href = url;
+    a.textContent = title;
+    
+    if (a.host !== location.host) {
+        a.target = '_blank';
+    }
+    
+    // Check if this is the current page
+    if (a.host === location.host && location.pathname === a.pathname) {
+        a.classList.add('current');
+    }
+    
+    nav.append(a);
+}
+
+// - - - Visualization - - - //
 // Global data variable
 let sankeyData = null;
 
