@@ -78,11 +78,21 @@ p {
 .link {
     fill: none;
     stroke-opacity: 0.4;
-    transition: stroke-opacity 0.3s;
+    transition: stroke-opacity 0.3s, stroke-dasharray 0.3s;
 }
 
 .link:hover {
     stroke-opacity: 0.7;
+}
+
+/* Styles for input and output links */
+.link.input {
+    stroke-opacity: 0.8;
+}
+
+.link.output {
+    stroke-opacity: 0.5;
+    stroke-dasharray: 5,5;
 }
 
 .node rect {
@@ -163,6 +173,29 @@ button:disabled {
     height: 20px;
     margin-right: 8px;
     border-radius: 3px;
+}
+
+.legend-line {
+    width: 30px;
+    height: 3px;
+    margin-right: 8px;
+    margin-top: 8px;
+}
+
+.legend-line.input {
+    opacity: 0.8;
+}
+
+.legend-line.output {
+    opacity: 0.5;
+    border-top: 3px dashed #666;
+    height: 0;
+}
+
+.pathway-legend {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
 }
 
 .info-box {

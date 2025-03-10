@@ -38,6 +38,11 @@ for (let p of pages) {
 // - - - Visualization - - - //
 // Global data variable
 let sankeyData = null;
+let selectedDepartment = null; // Track the currently selected department
+let departmentFilterStep = 1; // Track the current step in department filtering (1 = input, 2 = output)
+let isFiltered = false; // Track if we're in a filtered view
+let currentDepartmentLinks = []; // Store department links for the current filter
+let currentApproachNodes = new Set(); // Store approach nodes for the current filter
 
 // Function to load and process the data
 async function loadData() {
@@ -474,43 +479,200 @@ function createSankeyDiagram() {
                         event.stopPropagation();
                         event.preventDefault();
                         
-                        // Move to step 3 (full diagram) to ensure all nodes are loaded
+                        // Always reset to step 3 (full diagram) to ensure all nodes are loaded
                         currentAnimationStep = 2;
                         runAnimation();
                         
+                        // Force enable the Next button when selecting a department
+                        // regardless of which step we were on previously
+                        d3.select("#nextBtn").property("disabled", false);
+                        console.log("Next button explicitly enabled for department selection");
+                        
                         // After a short delay to ensure diagram is fully loaded
                         setTimeout(() => {
-                        // Implement step-by-step progression for the selected node
-                        
-                        // First, hide all nodes except the selected one
-                        const nodeLinks = data.links.filter(link => {
-                            return (typeof link.source === 'object' ? link.source.id : link.source) === d.id;
-                        });
-                        const connectedNodes = new Set();
-                        connectedNodes.add(d.id);
-                        nodeLinks.forEach(link => {
-                            connectedNodes.add(typeof link.target === 'object' ? link.target.id : link.target);
-                        });
-                        
-                        // Completely hide all nodes that are not connected
-                        svg.selectAll(".nodes g")
-                            .style("display", function(node) {
-                                return connectedNodes.has(node.id) ? "block" : "none";
-                            });
-                        
-                        // Also hide unrelated links
-                        svg.selectAll(".link")
-                            .style("display", function(link) {
+                            // Reset all state variables when a new department is selected
+                            departmentFilterStep = 1;
+                            selectedDepartment = d.id;
+                            isFiltered = true;
+                            
+                            // Clear any previous department data
+                            currentDepartmentLinks = [];
+                            currentApproachNodes = new Set();
+                            
+                            console.log("Department selected:", d.id, "- Resetting UI state");
+                            
+                            // Implement two-step filtering process
+                            // Step 1 (Input): Show only connections from department to approaches
+                            const departmentLinks = data.links.filter(link => {
                                 const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-                                return (sourceId === d.id || targetId === d.id) ? "block" : "none";
+                                return sourceId === d.id;
                             });
-                        
-                        // Show only the links connected to this node
-                        updateDiagram(nodeLinks);
-                        
-                        // Enable the reset button
-                        d3.select("#resetBtn").property("disabled", false);
+                            
+                            // Collect all approach nodes connected to this department for later use
+                            const approachNodes = new Set();
+                            departmentLinks.forEach(link => {
+                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                approachNodes.add(targetId);
+                            });
+                            
+                            // Create a set of connected nodes for the input step
+                            const connectedNodes = new Set();
+                            connectedNodes.add(d.id); // Add the department
+                            
+                            // Add connected approach nodes
+                            departmentLinks.forEach(link => {
+                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                connectedNodes.add(targetId);
+                            });
+                            
+                            // Hide nodes that are not connected
+                            svg.selectAll(".nodes g")
+                                .style("display", function(node) {
+                                    return connectedNodes.has(node.id) ? "block" : "none";
+                                });
+                            
+                            // Hide unrelated links
+                            svg.selectAll(".link")
+                                .style("display", function(link) {
+                                    const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                    return sourceId === d.id ? "block" : "none";
+                                })
+                                .attr("class", "link input"); // Mark as input links
+                            
+                            // Store the current filter data for navigation buttons
+                            isFiltered = true;
+                            currentDepartmentLinks = departmentLinks;
+                            currentApproachNodes = approachNodes;
+                            
+                            // Update diagram with filtered links
+                            updateDiagram(departmentLinks);
+                            
+                            // Set proper button states for input view
+                            updateButtonStates("input");
+                            
+                            // Enable the Next button to show output view
+                            d3.select("#nextBtn").property("disabled", false);
+                            
+                            // Keep the Previous button disabled since we're already at the input view
+                            d3.select("#prevBtn").property("disabled", true);
+                                
+                            // Set to step 2 for next click
+                            departmentFilterStep = 2;
+                            console.log("Step 1 (Input) complete. Ready for Step 2 (Output). departmentFilterStep =", departmentFilterStep);
+                            
+                            // Add a click handler for the second step (output)
+                            svg.selectAll("rect").on("click", function(event, clickedNode) {
+                                if (departmentFilterStep === 2 && clickedNode.id === d.id) {
+                                    // Step 2 (Output): Show connections from approaches to outcomes
+                                    // Get all links from these approaches to outcomes
+                                    const approachToOutcomeLinks = data.links.filter(link => {
+                                        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                        return approachNodes.has(sourceId);
+                                    });
+                                    
+                                    // Collect outcome nodes that are directly connected to these approaches
+                                    const outcomeNodes = new Set();
+                                    approachToOutcomeLinks.forEach(link => {
+                                        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                        outcomeNodes.add(targetId);
+                                    });
+                                    console.log("Outcome nodes count:", outcomeNodes.size);
+                                    
+                                    // Create a filtered set of links that only includes the direct pathway
+                                    const filteredLinks = [];
+                                    
+                                    // Add department to approach links
+                                    departmentLinks.forEach(link => {
+                                        filteredLinks.push(link);
+                                    });
+                                    
+                                    // Add only approach to outcome links where the approach is connected to this department
+                                    approachToOutcomeLinks.forEach(link => {
+                                        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                        
+                                        if (approachNodes.has(sourceId) && outcomeNodes.has(targetId)) {
+                                            filteredLinks.push(link);
+                                        }
+                                    });
+                                    
+                                    console.log("Total filtered links:", filteredLinks.length);
+                                    
+                                    // Create a set of all connected nodes
+                                    const allConnectedNodes = new Set();
+                                    allConnectedNodes.add(d.id); // Add the department
+                                    
+                                    // Add only the approaches connected to this department
+                                    approachNodes.forEach(nodeId => allConnectedNodes.add(nodeId));
+                                    
+                                    // Add only the outcomes connected to these approaches
+                                    outcomeNodes.forEach(nodeId => allConnectedNodes.add(nodeId));
+                                    
+                                    // Show all connected nodes
+                                    svg.selectAll(".nodes g")
+                                        .style("display", function(node) {
+                                            return allConnectedNodes.has(node.id) ? "block" : "none";
+                                        });
+                                    // Show only the relevant links - those that are part of our filtered pathway
+                                    svg.selectAll(".link")
+                                        .style("display", function(link) {
+                                            // Get source and target IDs
+                                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                            
+                                            // Check if this link is in our filtered set
+                                            for (const link of filteredLinks) {
+                                                const filteredSourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                                const filteredTargetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                                
+                                                if (sourceId === filteredSourceId && targetId === filteredTargetId) {
+                                                    return "block";
+                                                }
+                                            }
+                                            return "none"; // Hide if not in our filtered set
+                                        })
+                                        .attr("class", function(link) {
+                                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                            // Input links (from department) vs output links (from approaches)
+                                            if (sourceId === d.id) {
+                                                return "link input";
+                                            } else if (approachNodes.has(sourceId)) {
+                                                return "link output";
+                                            } else {
+                                                return "link";
+                                            }
+                                        });
+                                    
+                                    // Update diagram with properly filtered links
+                                    updateDiagram(filteredLinks);
+                                    
+                                    // Set proper button states for output view
+                                    updateButtonStates("output");
+                                    
+                                    console.log("Step 2 (Output) complete. Showing full pathway.");
+                                    
+                                    // Update tooltip to explain the visualization
+                                    tooltip.html(`<strong>${d.name} Pathway</strong><br>
+                                                <span style="color:#666;">Input: Department to Approaches</span><br>
+                                                <span style="color:#666;">Output: Approaches to Outcomes</span>`)
+                                        .style("left", (event.pageX + 10) + "px")
+                                        .style("top", (event.pageY - 28) + "px")
+                                        .style("opacity", 0.9);
+                                    // Keep departmentFilterStep at 2 so Next button continues to work
+                                    // This allows repeated clicking of Next to refresh the output view
+                                    departmentFilterStep = 1;
+                                } else if (clickedNode.id !== d.id) {
+                                    // If clicking on a different node, handle it normally
+                                    svg.selectAll("rect").on("click", null); // Remove this handler
+                                    d3.select(this).dispatch("click"); // Re-trigger click on the new node
+                                }
+                            });
+                            
+                            // departmentFilterStep is already set to 2 above
+                            console.log("Department filter step is now:", departmentFilterStep);
+                            
+                            // Enable the reset button
+                            d3.select("#resetBtn").property("disabled", false);
                         }, 500); // End of setTimeout
                     });
         
@@ -690,46 +852,184 @@ function createSankeyDiagram() {
                         
                         // After a short delay to ensure diagram is fully loaded
                         setTimeout(() => {
-                        // Implement step-by-step progression for the selected node
-                        
-                        // First, hide all nodes except the selected one
-                        const nodeLinks = data.links.filter(link => {
-                            return (typeof link.source === 'object' ? link.source.id : link.source) === d.id;
-                        });
-                        const connectedNodes = new Set();
-                        connectedNodes.add(d.id);
-                        nodeLinks.forEach(link => {
-                            connectedNodes.add(typeof link.target === 'object' ? link.target.id : link.target);
-                        });
-                        
-                        // Completely hide all nodes that are not connected
-                        svg.selectAll(".nodes g")
-                            .style("display", function(node) {
-                                return connectedNodes.has(node.id) ? "block" : "none";
-                            });
-                        
-                        // Also hide unrelated links
-                        svg.selectAll(".link")
-                            .style("display", function(link) {
+                            // Reset the department filter step and set the selected department
+                            departmentFilterStep = 1;
+                            selectedDepartment = d.id;
+                            
+                            // Implement two-step filtering process
+                            // Step 1 (Input): Show only connections from department to approaches
+                            const departmentLinks = data.links.filter(link => {
                                 const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-                                return (sourceId === d.id || targetId === d.id) ? "block" : "none";
+                                return sourceId === d.id;
                             });
-                        
-                        // Show only the links connected to this node
-                        updateDiagram(nodeLinks);
-                        
-                        // Enable the reset button
-                        d3.select("#resetBtn").property("disabled", false);
+                            
+                            // Collect all approach nodes connected to this department for later use
+                            const approachNodes = new Set();
+                            departmentLinks.forEach(link => {
+                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                approachNodes.add(targetId);
+                            });
+                            
+                            // Create a set of connected nodes for the input step
+                            const connectedNodes = new Set();
+                            connectedNodes.add(d.id); // Add the department
+                            
+                            // Add connected approach nodes
+                            departmentLinks.forEach(link => {
+                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                connectedNodes.add(targetId);
+                            });
+                            
+                            // Hide nodes that are not connected
+                            svg.selectAll(".nodes g")
+                                .style("display", function(node) {
+                                    return connectedNodes.has(node.id) ? "block" : "none";
+                                });
+                            
+                            // Hide unrelated links
+                            svg.selectAll(".link")
+                                .style("display", function(link) {
+                                    const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                    return sourceId === d.id ? "block" : "none";
+                                })
+                                .attr("class", "link input"); // Mark as input links
+                            
+                            // Update diagram with filtered links
+                            updateDiagram(departmentLinks);
+                            
+                            // Ensure navigation buttons remain enabled
+                            d3.select("#prevBtn").property("disabled", false);
+                            d3.select("#nextBtn").property("disabled", false);
+                            
+                            // Update tooltip to show next step instruction
+                            tooltip.html(`<strong>${d.name}</strong><br>Click again to see outcomes or use navigation buttons`)
+                                .style("left", (event.pageX + 10) + "px")
+                                .style("top", (event.pageY - 28) + "px")
+                                .style("opacity", 0.9);
+                            
+                            // Add a click handler for the second step (output)
+                            svg.selectAll("rect").on("click", function(event, clickedNode) {
+                                if (departmentFilterStep === 2 && clickedNode.id === d.id) {
+                                    // Step 2 (Output): Show connections from approaches to outcomes
+                                    // Get all links from these approaches to outcomes
+                                    const approachToOutcomeLinks = data.links.filter(link => {
+                                        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                        return approachNodes.has(sourceId);
+                                    });
+                                    
+                                    // Get outcome nodes that are directly connected to these approaches
+                                    const outcomeNodes = new Set();
+                                    approachToOutcomeLinks.forEach(link => {
+                                        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                        outcomeNodes.add(targetId);
+                                    });
+                                    console.log("Outcome nodes count:", outcomeNodes.size);
+                                    
+                                    // Create a filtered set of links that only includes the direct pathway
+                                    const filteredLinks = [];
+                                    
+                                    // Add department to approach links
+                                    departmentLinks.forEach(link => {
+                                        filteredLinks.push(link);
+                                    });
+                                    
+                                    // Add only approach to outcome links where the approach is connected to this department
+                                    approachToOutcomeLinks.forEach(link => {
+                                        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                        
+                                        if (approachNodes.has(sourceId) && outcomeNodes.has(targetId)) {
+                                            filteredLinks.push(link);
+                                        }
+                                    });
+                                    
+                                    console.log("Total filtered links:", filteredLinks.length);
+                                    
+                                    // Create a set of all connected nodes
+                                    const allConnectedNodes = new Set();
+                                    allConnectedNodes.add(d.id); // Add the department
+                                    
+                                    // Add only the approaches connected to this department
+                                    approachNodes.forEach(nodeId => allConnectedNodes.add(nodeId));
+                                    
+                                    // Add only the outcomes connected to these approaches
+                                    outcomeNodes.forEach(nodeId => allConnectedNodes.add(nodeId));
+                                    
+                                    // Show all connected nodes
+                                    svg.selectAll(".nodes g")
+                                        .style("display", function(node) {
+                                            return allConnectedNodes.has(node.id) ? "block" : "none";
+                                        });
+                                    
+                                    // Show only the relevant links - those that are part of our filtered pathway
+                                    svg.selectAll(".link")
+                                        .style("display", function(link) {
+                                            // Get source and target IDs
+                                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                            
+                                            // Only show links that are either:
+                                            // 1. From the selected department to one of its approaches
+                                            // 2. From one of those approaches to an outcome
+                                            if (sourceId === d.id && approachNodes.has(targetId)) {
+                                                return "block"; // Department to approach link
+                                            } else if (approachNodes.has(sourceId) && outcomeNodes.has(targetId)) {
+                                                return "block"; // Approach to outcome link
+                                            } else {
+                                                return "none"; // Hide all other links
+                                            }
+                                        })
+                                        .attr("class", function(link) {
+                                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                            // Input links (from department) vs output links (from approaches)
+                                            if (sourceId === d.id) {
+                                                return "link input";
+                                            } else if (approachNodes.has(sourceId)) {
+                                                return "link output";
+                                            } else {
+                                                return "link";
+                                            }
+                                        });
+                                    
+                                    // Update diagram with properly filtered links
+                                    updateDiagram(filteredLinks);
+                                    
+                                    // Update tooltip to explain the visualization
+                                    tooltip.html(`<strong>${d.name} Pathway</strong><br>
+                                                <span style="color:#666;">Input: Department to Approaches</span><br>
+                                                <span style="color:#666;">Output: Approaches to Outcomes</span>`)
+                                        .style("left", (event.pageX + 10) + "px")
+                                        .style("top", (event.pageY - 28) + "px")
+                                        .style("opacity", 0.9);
+                                    
+                                    // Reset for next department selection
+                                    departmentFilterStep = 1;
+                                } else if (clickedNode.id !== d.id) {
+                                    // If clicking on a different node, handle it normally
+                                    svg.selectAll("rect").on("click", null); // Remove this handler
+                                    d3.select(this).dispatch("click"); // Re-trigger click on the new node
+                                }
+                            });
+                            
+                            // Increment the step counter for the next click
+                            departmentFilterStep = 2;
+                            
+                            // Enable the reset button
+                            d3.select("#resetBtn").property("disabled", false);
                         }, 500); // End of setTimeout
                     });
                                 
                 // Update step indicators
                 d3.selectAll(".step").classed("active", (d, i) => i <= currentAnimationStep);
                 
-                // Manage button states
-                d3.select("#prevBtn").property("disabled", currentAnimationStep === 0);
-                d3.select("#nextBtn").property("disabled", currentAnimationStep === animationSteps.length - 1);
+                // Manage button states - but don't disable if we're in a filtered view
+                if (!selectedDepartment) {
+                    d3.select("#prevBtn").property("disabled", currentAnimationStep === 0);
+                    d3.select("#nextBtn").property("disabled", currentAnimationStep === animationSteps.length - 1);
+                } else {
+                    d3.select("#prevBtn").property("disabled", false);
+                    d3.select("#nextBtn").property("disabled", false);
+                }
                 
                 return; // Skip the regular update for step 1
             }
@@ -741,9 +1041,14 @@ function createSankeyDiagram() {
             d3.selectAll(".step")
                 .classed("active", (d, i) => i <= currentAnimationStep);
 
-            // Manage button states
-            d3.select("#prevBtn").property("disabled", currentAnimationStep === 0);
-            d3.select("#nextBtn").property("disabled", currentAnimationStep === animationSteps.length - 1);
+            // Manage button states - but don't disable if we're in a filtered view
+            if (!selectedDepartment) {
+                d3.select("#prevBtn").property("disabled", currentAnimationStep === 0);
+                d3.select("#nextBtn").property("disabled", currentAnimationStep === animationSteps.length - 1);
+            } else {
+                d3.select("#prevBtn").property("disabled", false);
+                d3.select("#nextBtn").property("disabled", false);
+            }
 
             // Cleanup
             setTimeout(fixLabelOverlap, 800);
@@ -770,52 +1075,371 @@ function createSankeyDiagram() {
             setTimeout(() => { animateBtn.property("disabled", false).text("Animate Diagram"); }, 4500);
         });
 
+        // Navigation button handlers with improved error handling and logging
         d3.select("#prevBtn").on("click", function() {
-            if (currentAnimationStep > 0) {
-                // Ensure all nodes are visible when navigating steps
-                svg.selectAll(".nodes g").style("display", "block");
-                svg.selectAll(".link").style("display", "block");
-                svg.selectAll("rect").style("opacity", 1).style("pointer-events", "auto");
-                svg.selectAll("text").style("opacity", 1);
-                
-                currentAnimationStep--;
-                runAnimation();
+            console.log("Previous button clicked. Current state:", {
+                isFiltered,
+                selectedDepartment,
+                departmentFilterStep,
+                currentAnimationStep
+            });
+            
+            try {
+                // If we're in a filtered view with a department selected
+                // Note: We check for selectedDepartment directly since isFiltered might not be set correctly
+                if (selectedDepartment) {
+                    // Always reset to input view when Previous is clicked
+                    departmentFilterStep = 1;
+                    console.log("Going back to input-only view for department:", selectedDepartment);
+                    
+                    // Find the department node
+                    const departmentNode = data.nodes.find(n => n.id === selectedDepartment);
+                    if (departmentNode) {
+                        console.log("Department node found:", departmentNode);
+                        
+                        // Get department links (input) - recalculate to ensure fresh data
+                        const departmentLinks = data.links.filter(link => {
+                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                            return sourceId === selectedDepartment;
+                        });
+                        console.log("Department links count:", departmentLinks.length);
+                        
+                        // Collect approach nodes that are directly connected to this department
+                        const approachNodes = new Set();
+                        departmentLinks.forEach(link => {
+                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                            approachNodes.add(targetId);
+                        });
+                        console.log("Approach nodes count:", approachNodes.size);
+                        
+                        // Create a set of connected nodes for the input step
+                        const connectedNodes = new Set();
+                        connectedNodes.add(selectedDepartment); // Add the department
+                        
+                        // Add only the approaches connected to this department
+                        approachNodes.forEach(nodeId => connectedNodes.add(nodeId));
+                        
+                        console.log("Connected nodes count:", connectedNodes.size);
+                        
+                        // Hide nodes that are not connected
+                        svg.selectAll(".nodes g")
+                            .style("display", function(node) {
+                                return connectedNodes.has(node.id) ? "block" : "none";
+                            });
+                        
+                        // Hide unrelated links
+                        svg.selectAll(".link")
+                            .style("display", function(link) {
+                                const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                return sourceId === selectedDepartment ? "block" : "none";
+                            })
+                            .attr("class", "link input"); // Mark as input links
+                        
+                        // Update diagram with filtered links
+                        updateDiagram(departmentLinks);
+                        
+                        // Store the current filter data for navigation buttons
+                        currentDepartmentLinks = departmentLinks;
+                        currentApproachNodes = approachNodes;
+                        
+                        // Set proper button states for input view
+                        updateButtonStates("input");
+                        
+                        // Enable the Next button to show output view
+                        d3.select("#nextBtn").property("disabled", false);
+                        
+                        // Keep the Previous button disabled since we're already at the input view
+                        d3.select("#prevBtn").property("disabled", true);
+                        
+                        // Set to step 2 for next click
+                        departmentFilterStep = 2;
+                        console.log("Successfully went back to input view. departmentFilterStep =", departmentFilterStep);
+                    } else {
+                        console.error("Department node not found:", selectedDepartment);
+                    }
+                } else if (currentAnimationStep > 0) {
+                    console.log("Standard navigation to previous step");
+                    // Standard behavior for unfiltered view
+                    // Ensure all nodes are visible when navigating steps
+                    svg.selectAll(".nodes g").style("display", "block");
+                    svg.selectAll(".link")
+                        .style("display", "block")
+                        .attr("class", "link");
+                    svg.selectAll("rect").style("opacity", 1).style("pointer-events", "auto");
+                    svg.selectAll("text").style("opacity", 1);
+                    
+                    // Reset all state variables
+                    resetFilterState();
+                    
+                    currentAnimationStep--;
+                    runAnimation();
+                }
+            } catch (error) {
+                console.error("Error in Previous button handler:", error);
+                // Attempt recovery
+                resetView();
             }
         });
 
         d3.select("#nextBtn").on("click", function() {
-            if (currentAnimationStep < animationSteps.length - 1) {
-                // Ensure all nodes are visible when navigating steps
-                svg.selectAll(".nodes g").style("display", "block");
-                svg.selectAll(".link").style("display", "block");
-                svg.selectAll("rect").style("opacity", 1).style("pointer-events", "auto");
-                svg.selectAll("text").style("opacity", 1);
-                
-                currentAnimationStep++;
-                runAnimation();
+            console.log("Next button clicked. Current state:", {
+                isFiltered,
+                selectedDepartment,
+                departmentFilterStep,
+                currentAnimationStep
+            });
+            
+            try {
+                // Check if we're in a filtered view with a department selected
+                // Note: We check for selectedDepartment directly since isFiltered might not be set correctly
+                if (selectedDepartment) {
+                    // Always show output view when Next is clicked
+                    departmentFilterStep = 2;
+                    
+                    // Force enable the Next button when in a filtered view
+                    d3.select("#nextBtn").property("disabled", false);
+                    console.log("Moving to output view for department:", selectedDepartment);
+                    
+                    // Find the department node
+                    const departmentNode = data.nodes.find(n => n.id === selectedDepartment);
+                    if (departmentNode) {
+                        console.log("Department node found:", departmentNode);
+                        
+                        // Get department links (input)
+                        const departmentLinks = data.links.filter(link => {
+                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                            return sourceId === selectedDepartment;
+                        });
+                        console.log("Department links count:", departmentLinks.length);
+                        
+                        // Collect approach nodes that are directly connected to this department
+                        const approachNodes = new Set();
+                        departmentLinks.forEach(link => {
+                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                            approachNodes.add(targetId);
+                        });
+                        console.log("Approach nodes count:", approachNodes.size);
+                        
+                        // Get all links from these approaches to outcomes
+                        const approachToOutcomeLinks = data.links.filter(link => {
+                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                            return approachNodes.has(sourceId);
+                        });
+                        console.log("Approach to outcome links count:", approachToOutcomeLinks.length);
+                        
+                        // Collect outcome nodes that are directly connected to these approaches
+                        const outcomeNodes = new Set();
+                        approachToOutcomeLinks.forEach(link => {
+                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                            outcomeNodes.add(targetId);
+                        });
+                        console.log("Outcome nodes count:", outcomeNodes.size);
+                        
+                        // Create a filtered set of links that only includes the direct pathway
+                        const filteredLinks = [];
+                        
+                        // Add department to approach links
+                        departmentLinks.forEach(link => {
+                            filteredLinks.push(link);
+                        });
+                        
+                        // Add only approach to outcome links where the approach is connected to this department
+                        approachToOutcomeLinks.forEach(link => {
+                            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                            
+                            if (approachNodes.has(sourceId) && outcomeNodes.has(targetId)) {
+                                filteredLinks.push(link);
+                            }
+                        });
+                        
+                        console.log("Total links to display:", filteredLinks.length);
+                        
+                        // Create a set of all connected nodes
+                        const allConnectedNodes = new Set();
+                        allConnectedNodes.add(selectedDepartment); // Add the department
+                        
+                        // Add only the approaches connected to this department
+                        approachNodes.forEach(nodeId => allConnectedNodes.add(nodeId));
+                        
+                        // Add only the outcomes connected to these approaches
+                        outcomeNodes.forEach(nodeId => allConnectedNodes.add(nodeId));
+                        
+                        console.log("Total connected nodes:", allConnectedNodes.size);
+                        
+                        // Show all connected nodes
+                        svg.selectAll(".nodes g")
+                            .style("display", function(node) {
+                                return allConnectedNodes.has(node.id) ? "block" : "none";
+                            });
+                        
+                        // Show only the relevant links - those that are part of our filtered pathway
+                        svg.selectAll(".link")
+                            .style("display", function(link) {
+                                // Get source and target IDs
+                                const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                                
+                                // Only show links that are either:
+                                // 1. From the selected department to one of its approaches
+                                // 2. From one of those approaches to an outcome
+                                if (sourceId === selectedDepartment && approachNodes.has(targetId)) {
+                                    return "block"; // Department to approach link
+                                } else if (approachNodes.has(sourceId) && outcomeNodes.has(targetId)) {
+                                    return "block"; // Approach to outcome link
+                                } else {
+                                    return "none"; // Hide all other links
+                                }
+                            })
+                            .attr("class", function(link) {
+                                const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                                // Input links (from department) vs output links (from approaches)
+                                if (sourceId === selectedDepartment) {
+                                    return "link input";
+                                } else if (approachNodes.has(sourceId)) {
+                                    return "link output";
+                                } else {
+                                    return "link";
+                                }
+                            });
+                        
+                        // Update diagram with properly filtered links
+                        updateDiagram(filteredLinks);
+                        
+                        // Store the current filter data for navigation buttons
+                        currentDepartmentLinks = departmentLinks;
+                        currentApproachNodes = approachNodes;
+                        
+                        // Set proper button states for output view
+                        updateButtonStates("output");
+                        
+                        // Disable the Next button since we're already showing the output
+                        d3.select("#nextBtn").property("disabled", true);
+                        
+                        // Keep the Previous button enabled to go back to input view
+                        d3.select("#prevBtn").property("disabled", false);
+                        
+                        // Keep departmentFilterStep at 2 so Next button continues to work
+                        // This allows repeated clicking of Next to refresh the output view
+                        console.log("Successfully moved to output view");
+                    } else {
+                        console.error("Department node not found:", selectedDepartment);
+                    }
+                } else if (currentAnimationStep < animationSteps.length - 1) {
+                    console.log("Standard navigation to next step");
+                    // Standard behavior for unfiltered view
+                    // Ensure all nodes are visible when navigating steps
+                    svg.selectAll(".nodes g").style("display", "block");
+                    svg.selectAll(".link")
+                        .style("display", "block")
+                        .attr("class", "link");
+                    svg.selectAll("rect").style("opacity", 1).style("pointer-events", "auto");
+                    svg.selectAll("text").style("opacity", 1);
+                    
+                    // Reset all state variables
+                    resetFilterState();
+                    
+                    currentAnimationStep++;
+                    runAnimation();
+                }
+            } catch (error) {
+                console.error("Error in Next button handler:", error);
+                // Attempt recovery
+                resetView();
             }
             
             // Fix any remaining NaN issues
             setTimeout(cleanupRogueText, 1200);
         });
+        
+        // Helper function to update button states based on current view
+        function updateButtonStates(view) {
+            if (view === "input") {
+                // In input view, enable Next and disable Previous
+                d3.select("#nextBtn").property("disabled", false);
+                d3.select("#prevBtn").property("disabled", true);
+                console.log("Button states updated for input view");
+            } else if (view === "output") {
+                // In output view, disable Next and enable Previous
+                d3.select("#nextBtn").property("disabled", true);
+                d3.select("#prevBtn").property("disabled", false);
+                console.log("Button states updated for output view");
+            } else if (view === "reset") {
+                // When resetting, enable both buttons (or disable based on animation step)
+                const atFirstStep = currentAnimationStep === 0;
+                const atLastStep = currentAnimationStep === animationSteps.length - 1;
+                d3.select("#prevBtn").property("disabled", atFirstStep);
+                
+                // If we have a selected department, always enable the Next button
+                // regardless of animation step
+                if (selectedDepartment) {
+                    d3.select("#nextBtn").property("disabled", false);
+                } else {
+                    d3.select("#nextBtn").property("disabled", atLastStep);
+                }
+                console.log("Button states reset, selectedDepartment:", selectedDepartment);
+            }
+        }
+        
+        // Helper function to reset all filter state variables
+        function resetFilterState() {
+            selectedDepartment = null;
+            departmentFilterStep = 1;
+            isFiltered = false;
+            currentDepartmentLinks = [];
+            currentApproachNodes = new Set();
+            console.log("Filter state reset");
+        }
+        
+        // Helper function to reset the view in case of errors
+        function resetView() {
+            console.log("Resetting view to step 1");
+            
+            // Reset to step 1 (departments only)
+            currentAnimationStep = 0;
+            resetFilterState();
+            
+            // Clear existing content
+            svg.selectAll(".nodes g").remove();
+            svg.selectAll(".links path").remove();
+            
+            // Run animation for step 1
+            runAnimation();
+            
+            // Update button states for step 1
+            d3.select("#prevBtn").property("disabled", true);
+            d3.select("#nextBtn").property("disabled", false);
+            
+            console.log("View reset to step 1 complete");
+        }
 
         d3.select("#resetBtn").on("click", function() {
-            // Reset to full diagram and restore default layout
-            currentAnimationStep = animationSteps.length - 1;
+            console.log("Reset button clicked");
             
-            // Ensure all nodes are visible
-            svg.selectAll(".nodes g").style("display", "block");
-            svg.selectAll("rect").style("opacity", 1).style("pointer-events", "auto");
-            svg.selectAll("text").style("opacity", 1);
+            // Reset to step 1 (departments only)
+            currentAnimationStep = 0;
+            
+            // Reset all filtering variables
+            resetFilterState();
+            
+            console.log("Reset view to step 1. All filters cleared.");
+            
+            // Clear existing content
+            svg.selectAll(".nodes g").remove();
+            svg.selectAll(".links path").remove();
             
             // Reset any zoom or pan transformations
-                svg.transition().duration(750)
-                    .attr("transform", `translate(${margin.left},${margin.top}) scale(1)`);
-                
-                // Make all links visible again
-                svg.selectAll(".link").style("display", "block");
-                
+            svg.transition().duration(750)
+                .attr("transform", `translate(${margin.left},${margin.top}) scale(1)`);
+            
+            // Run animation for step 1
             runAnimation();
+            
+            // Update button states for step 1
+            d3.select("#prevBtn").property("disabled", true);
+            d3.select("#nextBtn").property("disabled", false);
+            
+            console.log("Reset to step 1 complete");
         });
 
         // Add click handlers to step indicators
@@ -825,7 +1449,9 @@ function createSankeyDiagram() {
             currentAnimationStep = index;
             // Ensure all nodes are visible when changing steps
             svg.selectAll(".nodes g").style("display", "block");
-            svg.selectAll(".link").style("display", "block");
+            svg.selectAll(".link")
+                .style("display", "block")
+                .attr("class", "link");
             runAnimation();
         });
         
@@ -833,6 +1459,24 @@ function createSankeyDiagram() {
         // Create legend
         d3.select(".legend").remove();
         const legend = d3.select(".container").append("div").attr("class", "legend");
+        
+        // Add pathway legend for input/output links
+        const pathwayLegend = legend.append("div").attr("class", "legend-section pathway-legend");
+        pathwayLegend.append("h4").text("Pathway Types");
+        
+        // Input link legend item
+        const inputItem = pathwayLegend.append("div").attr("class", "legend-item");
+        inputItem.append("div")
+            .attr("class", "legend-line input")
+            .style("background-color", "#666");
+        inputItem.append("div").text("Input: Department to Approaches");
+        
+        // Output link legend item
+        const outputItem = pathwayLegend.append("div").attr("class", "legend-item");
+        outputItem.append("div")
+            .attr("class", "legend-line output")
+            .style("background-color", "#666");
+        outputItem.append("div").text("Output: Approaches to Outcomes");
         
         // Department legend
         const departmentLegend = legend.append("div").attr("class", "legend-section");
