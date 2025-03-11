@@ -1,5 +1,5 @@
 {
     "0": "This is the distribution of patients among the different surgical departments: General, Gynecology, Thoracic, or Urology.",
     "1": "After being assigned to a surgical department, patients can have one of three surgery types: Open, Videoscopic, or Robotic. Open Surgery is the more traditional form where surgeons cut into patients to perform an operation. Videoscopic surgery uses a small scope to project a magnified image of the body onto a larger monitor to assist surgeons. Meanwhile, Robotic Surgery is a more experimental procedure involving robotic assistance during the operation.",
-    "2": "After patients undergo surgery, we can see four major outcomes: Death, Survived for < 3 days, Survived 3-7 days, and Survived > 7 days. You can see the distribution of each of these outcomes per surgery type."
+    "2": "After patients undergo surgery, we can see four major outcomes: Death, Survived and stayed at the hospital for less than 3 days, Survived and stayed for 3-7 days, and Survived and stayed for more than 7 days. You can see the distribution of each of these outcomes per surgery type."
 }
