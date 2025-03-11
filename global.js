@@ -1497,25 +1497,7 @@ function createSankeyDiagram() {
         // Create legend
         d3.select(".legend").remove();
         const legend = d3.select(".container").append("div").attr("class", "legend");
-        
-        // Add pathway legend for input/output links
-        const pathwayLegend = legend.append("div").attr("class", "legend-section pathway-legend");
-        pathwayLegend.append("h4").text("Pathway Types");
-        
-        // Input link legend item
-        const inputItem = pathwayLegend.append("div").attr("class", "legend-item");
-        inputItem.append("div")
-            .attr("class", "legend-line input")
-            .style("background-color", "#666");
-        inputItem.append("div").text("Input: Department to Approaches");
-        
-        // Output link legend item
-        const outputItem = pathwayLegend.append("div").attr("class", "legend-item");
-        outputItem.append("div")
-            .attr("class", "legend-line output")
-            .style("background-color", "#666");
-        outputItem.append("div").text("Output: Approaches to Outcomes");
-        
+                
         // Department legend
         const departmentLegend = legend.append("div").attr("class", "legend-section");
         departmentLegend.append("h4").text("Departments");
