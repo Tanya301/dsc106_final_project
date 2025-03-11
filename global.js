@@ -37,6 +37,8 @@ for (let p of pages) {
 
 // - - - Visualization - - - //
 // Global data variable
+
+let storyText = {};
 let sankeyData = null;
 let selectedDepartment = null; // Track the currently selected department
 let departmentFilterStep = 1; // Track the current step in department filtering (1 = input, 2 = output)
@@ -238,6 +240,31 @@ function createSankeyDiagram() {
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create the storytelling container
+        const storyContainer = d3.select("#chart")
+            .insert("div", ":first-child") // Insert before the first child (SVG)
+            .attr("id", "story-container")
+            .attr("class", "story-container")
+
+        d3.json("story_text.json").then(data => {
+            storyText = data;
+            // Show initial text
+            updateStoryText(0);
+        }).catch(error => {
+            console.error("Error loading story text:", error);
+        });
+    
+        function updateStoryText(index) {
+            if (storyText && storyText[index]) {
+                storyContainer
+                    .html(storyText[index])
+                    .style("opacity", 1);
+            }
+        }
+
+        // Initial story
+        updateStoryText("Welcome to the Patient Pathway Visualization. This Sankey diagram shows how patients flow from departments through different treatment approaches to final outcomes. <br><br>Click on a department to see its specific pathways.");
         
         // Create tooltip
         const tooltip = d3.select("body").append("div")
@@ -786,6 +813,7 @@ function createSankeyDiagram() {
         function runAnimation() {
             // Ensure we're using the correct step
             const step = animationSteps[currentAnimationStep];
+            updateStoryText(currentAnimationStep);
             
             // Prepare links - call function if it's a function, otherwise use as-is
             const linksToShow = typeof step.links === 'function' 

@@ -13,6 +13,7 @@ nav {
     border-bottom-style: solid;
     --border-color: oklch(50% 10% 200 / 40%);
     border-bottom-color: var(--border-color);
+    --color-accent: #4CAF50;
 }
 nav a {
     flex: 1;
@@ -27,6 +28,19 @@ nav a.current {
     font-weight: bold;
     padding-bottom: 1px;
     border-bottom-style: solid;
+}
+
+a:hover {
+    border-bottom-width: 4px;
+    border-bottom-color: var(--color-accent);
+    font-weight: bold;
+    padding-bottom: 1px;
+    border-bottom-style: solid;
+    background-color: oklch(from var(--color-accent) 95% 5% h);
+    /* color-mix worked weird with my accent color (green), so i chose to define the colors separately */
+    /* background-color: color-mix(in oklch, var(--color-accent) 70%, black 30%); */
+    background-color: light-dark(oklch(from var(--color-accent) 95% 5% h), oklch(from var(--color-accent)  20% 80% h));
+    transition: 300ms;
 }
 /* End of navigation */
 
@@ -206,6 +220,24 @@ button:disabled {
     font-size: 14px;
     line-height: 1.5;
 }
+
+.story-container {
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    padding: 16px 24px;
+    /* background-color: #f9f9f9; */
+    background-color: #4caf4f1f;
+    border: 1px solid #4CAF50;
+    /* border-color: #8e8e8e;
+    border-width: 1px;
+    border-style: solid; */
+    /* border-left: 4px solid #4CAF50; Matches green buttons */
+    border-radius: 4px;
+    margin: 20px 0;
+    max-width: 800px;
+    margin-left: 30px;
+}  
 
 .step-indicator {
     display: flex;
