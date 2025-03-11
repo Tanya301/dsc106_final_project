@@ -258,8 +258,18 @@ function createSankeyDiagram() {
         function updateStoryText(index) {
             if (storyText && storyText[index]) {
                 storyContainer
-                    .html(storyText[index])
-                    .style("opacity", 1);
+                    .transition()  // Trigger a transition
+                    .duration(300) // Set the duration for fading out
+                    .style("opacity", 0)  // Fade out
+        
+                // After the fade-out completes, update the text and fade in
+                .on("end", function() {
+                    storyContainer
+                        .html(storyText[index])  // Update the content
+                        .transition()  // Trigger another transition
+                        .duration(300) // Set the duration for fading in
+                        .style("opacity", 1);  // Fade in
+                });
             }
         }
 
