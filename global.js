@@ -1496,7 +1496,7 @@ function createSankeyDiagram() {
 
         // Create legend
         d3.select(".legend").remove();
-        const legend = d3.select(".container").append("div").attr("class", "legend");
+        const legend = d3.select(".legend-container").append("div").attr("class", "legend");
                 
         // Department legend
         const departmentLegend = legend.append("div").attr("class", "legend-section");
