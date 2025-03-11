@@ -232,7 +232,7 @@ function createSankeyDiagram() {
         // Set up dimensions
         const margin = {top: 20, right: 20, bottom: 20, left: 20};
         const width = document.getElementById("chart").clientWidth - margin.left - margin.right;
-        const height = document.getElementById("chart").clientHeight - margin.top - margin.bottom;
+        const height = 500;
         
         // Create SVG container
         const svg = d3.select("#chart").append("svg")
