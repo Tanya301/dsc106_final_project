@@ -175,7 +175,7 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 20px;
+    /* margin-top: 20px; */
 }
 
 .legend-item {
@@ -195,7 +195,7 @@ button:disabled {
     width: 30px;
     height: 3px;
     margin-right: 8px;
-    margin-top: 8px;
+    /* margin-top: 8px; */
 }
 
 .legend-line.input {
@@ -214,13 +214,28 @@ button:disabled {
     border-top: 1px solid #eee;
 }
 
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 20px;
+}
+  
+.legend-container {
+    flex: 1;
+    align-self: flex-start; /* Ensure it starts at the top */
+    min-height: 100px; /* Give it some minimum height */  
+}  
+
 .info-box {
+    flex: 1;
     background-color: #f9f9f9;
     border-left: 4px solid #4CAF50;
     padding: 15px;
-    margin-top: 20px;
+    /* margin-top: 20px; */
     font-size: 14px;
     line-height: 1.5;
+    align-self: flex-start;
 }
 
 .story-container {
