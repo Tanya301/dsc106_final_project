@@ -492,6 +492,11 @@ function createSankeyDiagram() {
             })
             .attr("fill", d => getNodeColor(d))
             .attr("stroke", d => d3.color(getNodeColor(d)).darker(0.5))
+
+
+
+            
+
                     // Add hover functionality
                     .on("mouseover", function(event, d) {
                         tooltip.transition().duration(200).style("opacity", 0.9);
