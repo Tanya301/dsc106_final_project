@@ -1538,17 +1538,6 @@ function createSankeyDiagram() {
             .style("background-color", d => approachColor(d));
         approachItems.append("div").text(d => d);
         
-        // Outcome legend
-        const outcomeLegend = legend.append("div").attr("class", "legend-section");
-        outcomeLegend.append("h4").text("Outcomes");
-        const outcomeItems = outcomeLegend.selectAll(".legend-item")
-            .data(outcomeColor.domain())
-            .enter().append("div").attr("class", "legend-item");
-        outcomeItems.append("div")
-            .attr("class", "legend-color")
-            .style("background-color", d => outcomeColor(d));
-        outcomeItems.append("div").text(d => d);
-
         // Initial setup
         runAnimation();
     } catch (error) {
