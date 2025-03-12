@@ -297,3 +297,42 @@ button:disabled {
     font-size: 18px;
     color: #666;
 }
+
+/* For the stacked bar chart */
+#departments_vis #tooltip {
+    position: absolute;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    max-width: 300px;
+    display: none; /* Ensure it is hidden initially */
+}
+
+/* Legend for the stacked bar chart */
+#departments_vis .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#departments_vis .legend-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+#departments_vis .legend-color {
+    width: 15px;
+    height: 15px;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
