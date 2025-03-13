@@ -6,13 +6,17 @@
     <title>Surgical Pathways Sankey Diagram</title>
     <link rel="stylesheet" href="style.css">
     <script type="module" src="global.js"></script>
+    <script type="module" src="question.js"></script>
     <script type="module" src="departments.js"></script>
 </head>
 <body>
     <h1>How long will a patient stay in the hospital to recover from surgery?</h1>
-        <div class="description">
-            This interactive visualization shows the journey of surgical patients from their initial department through different surgical approaches to their ultimate outcomes, revealing patterns in how different surgical pathways affect patient recovery.
-        </div>
+    <div class="description">
+        This interactive visualization shows the journey of surgical patients from their initial department through different surgical approaches to their ultimate outcomes, revealing patterns in how different surgical pathways affect patient recovery.
+    </div>
+    
+    <!-- The questionnaire section will be dynamically created by question.js -->
+    
     <div class="container">
         <div class="container" id="departments_vis">
             <button id="backButton" style="display: none;">Back to Main Visualization</button>
