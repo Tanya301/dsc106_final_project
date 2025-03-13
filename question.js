@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Current state of questionnaire
     let currentState = {
         started: false, // Flag to check if quiz has started
-        step: 1,
+        quizStep: 1,
         department: null,
         surgeryType: null
     };
@@ -90,62 +90,63 @@ document.addEventListener('DOMContentLoaded', function() {
     function initQuestionnaire() {
         // Show start page first
         showStartPage();
-        updateButtonStates();
+        updateQuizButtonStates();
     }
 
     function resetQuestionnaire() {
         currentState = {
             started: false,
-            step: 1,
+            quizStep: 1,
             department: null,
             surgeryType: null
         };
         showStartPage();
-        updateButtonStates();
+        updateQuizButtonStates();
     }
 
-    function goToStep(step) {
-        if (step === currentState.step && currentState.started) return;
+    function goToStep(quizStep) {
+        if (quizStep === currentState.quizStep && currentState.started) return;
 
-        // If quiz hasn't started yet, we need to start it first
-        if (!currentState.started) {
-            startQuiz();
-            return;
-        }
+        // TANYA: the quiz would start when interacting with Sankey, I think the problem came form here
+        // // If quiz hasn't started yet, we need to start it first
+        // if (!currentState.started) {
+        //     startQuiz();
+        //     return;
+        // }
 
-        if (step === 1) {
-            currentState.step = 1;
+        if (quizStep === 1) {
+            currentState.quizStep = 1;
             currentState.department = null;
             currentState.surgeryType = null;
             showDepartmentSelection();
-        } else if (step === 2 && currentState.department) {
-            currentState.step = 2;
+        } else if (quizStep === 2 && currentState.department) {
+            currentState.quizStep = 2;
             currentState.surgeryType = null;
             showSurgeryTypeSelection();
-        } else if (step === 3 && currentState.department && currentState.surgeryType) {
-            currentState.step = 3;
+        } else if (quizStep === 3 && currentState.department && currentState.surgeryType) {
+            currentState.quizStep = 3;
             showResults();
         }
 
-        updateStepIndicator(currentState.step);
-        updateButtonStates();
+        updateStepIndicator(currentState.quizStep);
+        updateQuizButtonStates();
     }
 
     function goToPreviousStep() {
-        if (currentState.step > 1) {
-            goToStep(currentState.step - 1);
+        if (currentState.quizStep > 1) {
+            goToStep(currentState.quizStep - 1);
         }
     }
 
     function goToNextStep() {
-        if (currentState.step < 3) {
-            goToStep(currentState.step + 1);
+        if (currentState.quizStep < 3) {
+            goToStep(currentState.quizStep + 1);
         }
     }
 
-    function updateStepIndicator(step) {
+    function updateStepIndicator(quizStep) {
         stepButtons.forEach((btn, index) => {
-            if (index + 1 === step) {
+            if (index + 1 === quizStep) {
                 btn.classList.add('active');
             } else {
                 btn.classList.remove('active');
@@ -153,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function updateButtonStates() {
+    function updateQuizButtonStates() {
         // If quiz hasn't started, disable all navigation buttons
         if (!currentState.started) {
             prevBtn.disabled = true;
@@ -169,10 +170,10 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.style.visibility = 'visible';
         });
         
-        prevBtn.disabled = currentState.step === 1;
-        nextBtn.disabled = (currentState.step === 1 && !currentState.department) ||
-                          (currentState.step === 2 && !currentState.surgeryType) ||
-                          (currentState.step === 3);
+        prevBtn.disabled = currentState.quizStep === 1;
+        nextBtn.disabled = (currentState.quizStep === 1 && !currentState.department) ||
+                          (currentState.quizStep === 2 && !currentState.surgeryType) ||
+                          (currentState.quizStep === 3);
     }
 
     // Function to show the start page
@@ -203,10 +204,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to start the quiz
     function startQuiz() {
         currentState.started = true;
-        currentState.step = 1;
+        currentState.quizStep = 1;
         updateStepIndicator(1);
         showDepartmentSelection();
-        updateButtonStates();
+        updateQuizButtonStates();
     }
     
     // Content display functions
@@ -248,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
         departmentContainer.appendChild(departmentOptions);
         questionnaireContainer.appendChild(departmentContainer);
         
-        updateButtonStates();
+        updateQuizButtonStates();
     }
 
     function showSurgeryTypeSelection() {
@@ -289,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
         surgeryContainer.appendChild(surgeryOptions);
         questionnaireContainer.appendChild(surgeryContainer);
         
-        updateButtonStates();
+        updateQuizButtonStates();
     }
 
     function showResults() {
@@ -399,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actions for selection
     function selectDepartment(departmentId) {
         currentState.department = departmentId;
-        updateButtonStates();
+        updateQuizButtonStates();
         
         // Automatically move to question 2 after selecting a department
         setTimeout(() => {
@@ -409,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function selectSurgeryType(typeId) {
         currentState.surgeryType = typeId;
-        updateButtonStates();
+        updateQuizButtonStates();
         
         // Automatically move to results after selecting a surgery type
         setTimeout(() => {
@@ -456,6 +457,7 @@ function addQuestionnaireStyling() {
             max-width: 100%;
             margin: 0 auto;
             padding: 20px;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .option-container {
@@ -499,6 +501,7 @@ function addQuestionnaireStyling() {
             max-width: 100%;
             margin: 0 auto;
             padding: 20px;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .summary-section {
@@ -545,6 +548,7 @@ function addQuestionnaireStyling() {
             padding: 40px 20px;
             max-width: 600px;
             margin: 0 auto;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         
         .start-container h2 {
