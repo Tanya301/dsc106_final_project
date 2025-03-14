@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         departmentContainer.classList.add('questionnaire-container');
         
         const heading = document.createElement('h2');
-        heading.textContent = 'Question 1: What surgical department would you go into?';
+        heading.textContent = 'Question 1: Which surgical department do you trust the most?';
         departmentContainer.appendChild(heading);
 
         const departmentOptions = document.createElement('div');
