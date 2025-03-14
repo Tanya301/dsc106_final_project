@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         department: null,
         surgeryType: null
     };
-
+/*
     // Create a container for the questionnaire content if it doesn't exist
     if (!document.querySelector('.questionnaire-section')) {
         const questionnaireSection = document.createElement('div');
@@ -63,15 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const mainContainer = document.querySelector('.container');
         document.body.insertBefore(questionnaireSection, mainContainer);
     }
-
+*/
     // Get DOM elements
     const questionnaireContainer = document.getElementById('questionnaire-container');
     const resetBtn = document.getElementById('resetBtn');
-    const animateBtn = document.getElementById('animateBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const stepButtons = document.querySelectorAll('.step');
-    const chartElement = document.getElementById('chart');
+    const quizStepButtons = document.querySelectorAll('.steps');
 
     // Initialize the questionnaire
     initQuestionnaire();
@@ -80,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     resetBtn.addEventListener('click', resetQuestionnaire);
     prevBtn.addEventListener('click', goToPreviousStep);
     nextBtn.addEventListener('click', goToNextStep);
-    stepButtons.forEach((btn, index) => {
+    quizStepButtons.forEach((btn, index) => {
         btn.addEventListener('click', () => {
             goToStep(index + 1);
         });
@@ -90,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function initQuestionnaire() {
         // Show start page first
         showStartPage();
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
     }
 
     function resetQuestionnaire() {
@@ -101,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
             surgeryType: null
         };
         showStartPage();
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
     }
 
     function goToStep(quizStep) {
@@ -129,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         updateStepIndicator(currentState.quizStep);
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
     }
 
     function goToPreviousStep() {
@@ -145,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateStepIndicator(quizStep) {
-        stepButtons.forEach((btn, index) => {
+        quizStepButtons.forEach((btn, index) => {
             if (index + 1 === quizStep) {
                 btn.classList.add('active');
             } else {
@@ -154,27 +152,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function updateQuizButtonStates() {
-        // If quiz hasn't started, disable all navigation buttons
-        if (!currentState.started) {
-            prevBtn.disabled = true;
-            nextBtn.disabled = true;
-            stepButtons.forEach(btn => {
-                btn.style.visibility = 'hidden';
-            });
-            return;
-        }
+    // function updateQuizButtonStates() {
+    //     // If quiz hasn't started, disable all navigation buttons
+    //     if (!currentState.started) {
+    //         prevBtn.disabled = true;
+    //         nextBtn.disabled = true;
+    //         quizStepButtons.forEach(btn => {
+    //             btn.style.visibility = 'hidden';
+    //         });
+    //         return;
+    //     }
         
-        // Show step buttons once quiz has started
-        stepButtons.forEach(btn => {
-            btn.style.visibility = 'visible';
-        });
+    //     // Show step buttons once quiz has started
+    //     quizStepButtons.forEach(btn => {
+    //         btn.style.visibility = 'visible';
+    //     });
         
-        prevBtn.disabled = currentState.quizStep === 1;
-        nextBtn.disabled = (currentState.quizStep === 1 && !currentState.department) ||
-                          (currentState.quizStep === 2 && !currentState.surgeryType) ||
-                          (currentState.quizStep === 3);
-    }
+    //     prevBtn.disabled = currentState.quizStep === 1;
+    //     nextBtn.disabled = (currentState.quizStep === 1 && !currentState.department) ||
+    //                       (currentState.quizStep === 2 && !currentState.surgeryType) ||
+    //                       (currentState.quizStep === 3);
+    // }
 
     // Function to show the start page
     function showStartPage() {
@@ -207,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentState.quizStep = 1;
         updateStepIndicator(1);
         showDepartmentSelection();
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
     }
     
     // Content display functions
@@ -249,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
         departmentContainer.appendChild(departmentOptions);
         questionnaireContainer.appendChild(departmentContainer);
         
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
     }
 
     function showSurgeryTypeSelection() {
@@ -290,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         surgeryContainer.appendChild(surgeryOptions);
         questionnaireContainer.appendChild(surgeryContainer);
         
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
     }
 
     function showResults() {
@@ -400,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actions for selection
     function selectDepartment(departmentId) {
         currentState.department = departmentId;
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
         
         // Automatically move to question 2 after selecting a department
         setTimeout(() => {
@@ -410,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function selectSurgeryType(typeId) {
         currentState.surgeryType = typeId;
-        updateQuizButtonStates();
+        // updateQuizButtonStates();
         
         // Automatically move to results after selecting a surgery type
         setTimeout(() => {

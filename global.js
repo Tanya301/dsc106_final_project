@@ -1063,7 +1063,7 @@ function createSankeyDiagram() {
                     });
                                 
                 // Update step indicators
-                d3.selectAll(".step").classed("active", (d, i) => i <= currentAnimationStep);
+                d3.selectAll(".sankey-step").classed("active", (d, i) => i <= currentAnimationStep);
                 
                 // Manage button states - but don't disable if we're in a filtered view
                 if (!selectedDepartment) {
@@ -1081,7 +1081,7 @@ function createSankeyDiagram() {
             updateDiagram(linksToShow, step.filter);
 
             // Update step indicators
-            d3.selectAll(".step")
+            d3.selectAll(".sankey-step")
                 .classed("active", (d, i) => i <= currentAnimationStep);
 
             // Manage button states - but don't disable if we're in a filtered view
@@ -1486,8 +1486,8 @@ function createSankeyDiagram() {
         });
 
         // Add click handlers to step indicators
-        d3.selectAll(".step").on("click", function(event) {
-            const steps = d3.selectAll(".step").nodes();
+        d3.selectAll(".sankey-step").on("click", function(event) {
+            const steps = d3.selectAll(".sankey-step").nodes();
             const index = steps.indexOf(this);
             currentAnimationStep = index;
             // Ensure all nodes are visible when changing steps

@@ -260,7 +260,7 @@ button:disabled {
     margin-top: 20px;
 }
 
-.step {
+.step, .sankey-step {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -272,7 +272,7 @@ button:disabled {
     position: relative;
 }
 
-.step.active {
+.step.active, .sankey-step.active {
     background-color: #4CAF50;
     color: white;
 }
@@ -287,7 +287,8 @@ button:disabled {
     z-index: -1;
 }
 
-.step:last-child .step-line {
+.step:last-child .step-line,
+.sankey-step:last-child .step-line {
     display: none;
 }
 

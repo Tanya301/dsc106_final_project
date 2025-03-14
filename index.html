@@ -10,9 +10,12 @@
     <script type="module" src="departments.js"></script>
 </head>
 <body>
-    <h1>How long will a patient stay in the hospital to recover from surgery?</h1>   
+    <h1>How long will a patient stay in the hospital to recover from surgery?</h1>
     
-    <!-- The questionnaire section will be dynamically created by question.js -->
+    <!-- Container for the questionnaire section -->
+    <div class="questionnaire-section">
+        <div id="questionnaire-container"></div>
+    </div>
     
     <!-- The interactive barchart will be created by departments.js -->
     <div class="container" id="departments_vis">
@@ -24,9 +27,9 @@
 
     <div class="container">
         <div class="step-indicator">
-            <button class="step">1<div class="step-line"></div></button>
-            <button class="step">2<div class="step-line"></div></button>
-            <button class="step">3</button>
+            <button class="step sankey-step">1<div class="step-line"></div></button>
+            <button class="step sankey-step">2<div class="step-line"></div></button>
+            <button class="step sankey-step">3</button>
         </div>
         
         <div class="controls">
