@@ -443,7 +443,7 @@ function addQuestionnaireStyling() {
     styleSheet.id = 'questionnaire-styles';
     styleSheet.textContent = `
         .questionnaire-section {
-            max-width: 1200px;
+            max-width: auto;
             margin: 0 auto 20px;
             background-color: white;
             border-radius: 8px;
@@ -544,7 +544,7 @@ function addQuestionnaireStyling() {
         .start-container {
             text-align: center;
             padding: 40px 20px;
-            max-width: 600px;
+            max-width: auto;
             margin: 0 auto;
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
