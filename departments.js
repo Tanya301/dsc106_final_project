@@ -76,6 +76,7 @@ d3.csv("cases.csv").then(function (data) {
 
     // Function to draw stacked bar chart
     function drawStackedChart(departmentData) {
+        d3.select("#legend").html(""); // Clear existing legend
         const data = departmentData.data;
 
         // Get all unique categories
@@ -111,6 +112,16 @@ d3.csv("cases.csv").then(function (data) {
         svg.append("g")
             .attr("transform", `translate(${margin.left},0)`)
             .call(d3.axisLeft(yScale));
+        
+        // Adding title
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.top)
+            .attr("text-anchor", "middle")
+            .style("font-size", "20px")
+            .style("font-family", "sans-serif")
+            .style("fill", "black")
+            .text("Surgery Type by Age Group");
 
         // Draw stacks
         const groups = svg.selectAll(".layer")
@@ -144,12 +155,16 @@ d3.csv("cases.csv").then(function (data) {
 
         legend.append("span").text(d => d);
 
+        
+
+
         // Show the back button
         d3.select("#backButton").style("display", "inline-block");
     }
 
     // Function to draw the initial department-level chart
     function drawDepartmentChart(departmentData) {
+        d3.select("#legend").html(""); // Clear existing legend
         const xScale = d3.scaleBand()
             .domain(departmentData.map(d => d.department))
             .range([margin.left, width - margin.right])
@@ -174,6 +189,32 @@ d3.csv("cases.csv").then(function (data) {
 
         svg.append("g").attr("transform", `translate(0,${height - margin.bottom})`).call(d3.axisBottom(xScale));
         svg.append("g").attr("transform", `translate(${margin.left},0)`).call(d3.axisLeft(yScale));
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.top)
+            .attr("text-anchor", "middle")
+            .style("font-size", "20px")
+            .style("font-family", "sans-serif")
+            .style("fill", "black")
+            .text("Surgery Cases by Department");
+        // Creating Legend
+        const legend = d3.select("#legend")
+            .selectAll("div")
+            .data(departmentData.map(d => d.department))
+            .enter().append("div")
+            .style("display", "flex")
+            .style("align-items", "center")
+            .style("margin-bottom", "5px");
+
+        legend.append("div")
+            .style("width", "20px")
+            .style("height", "20px")
+            .style("background-color", "steelblue")
+            .style("margin-right", "5px");
+
+        legend.append("span").text(d => d);
+
+        
 
         // Hide the back button initially
         d3.select("#backButton").style("display", "none");
