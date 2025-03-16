@@ -10,12 +10,24 @@
     <script type="module" src="departments.js"></script>
 </head>
 <body>
-    <h1>How long will a patient stay in the hospital to recover from surgery?</h1>
-    
-    <!-- Container for the questionnaire section -->
-    <div class="questionnaire-section">
-        <div id="questionnaire-container"></div>
+    <div class="header-container">
+        <h1>How long will a patient stay in the hospital to recover from surgery?</h1>
+        <div class="description">
+            <p>Have you ever thought about what happens when you undergo surgery? You likely have questions going through your mind, such as:</p>
+                <p class="highlight">"Will I survive?"</p>
+                <p class="highlight">"How long do I need to recover?"</p>
+            <p>To help alleviate these concerns, we investigated data from patients undergoing surgery at the Seoul National University Hospital, Republic of Korea.</p>
+        </div>
     </div>
+
+    <!-- Flex container for the two sections -->
+    <div class="content-container">
+        <!-- Container for the questionnaire section -->
+        <div class="questionnaire-section">
+            <div id="questionnaire-container"></div>
+        </div>
+    </div>
+
     
     <!-- The interactive barchart will be created by departments.js -->
     <div class="container" id="departments_vis">

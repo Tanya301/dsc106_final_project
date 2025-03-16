@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         startContainer.appendChild(heading);
         
         const description = document.createElement('p');
-        description.textContent = 'This quiz will help you understand different surgical pathways and their outcomes. Answer a few questions to see personalized results.';
+        description.textContent = 'If you were about to undergo surgery, wouldn’t you want to know which department offers the best chances of recovery? This questionnaire will guide you in making an informed decision.';
         startContainer.appendChild(description);
         
         const startButton = document.createElement('button');
@@ -557,7 +557,7 @@ function addQuestionnaireStyling() {
         }
         
         .start-container p {
-            font-size: 16px;
+            font-size: 20px;
             margin-bottom: 30px;
             color: #666;
             text-align: center;
@@ -572,6 +572,7 @@ function addQuestionnaireStyling() {
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         .start-button:hover {
