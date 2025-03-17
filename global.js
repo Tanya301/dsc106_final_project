@@ -3,7 +3,7 @@ const ARE_WE_HOME = document.documentElement.classList.contains('home');
 
 let pages = [
     { url: '', title: 'Home' },
-    { url: 'writeup.html', title: 'Writeup' },
+    { url: 'writeup.html', title: 'Rationale' },
 ];
 
 let nav = document.createElement('nav');
@@ -45,6 +45,18 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 // - - - End of Images - - - //
+
+// - - - JavaScript for collapsing bullet points - - - //
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".collapse").forEach((h2) => {
+        h2.addEventListener("click", function () {
+            const content = this.nextElementSibling;
+            content.style.display = content.style.display === "block" ? "none" : "block";
+            this.classList.toggle("active"); // Toggle class for the indicator rotation
+        });
+    });
+});
+// - - - End of bullet point section - - - //
 
 // - - - Visualization - - - //
 // Global data variable
