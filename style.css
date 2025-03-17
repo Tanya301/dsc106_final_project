@@ -45,7 +45,7 @@ a:hover {
 /* End of navigation */
 
 /* Styling the info boxes */
-.header-container, .sankey-info-container {
+.header-container, .info-container {
     max-width: auto;
     margin: 20px auto;
     padding: 20px;
