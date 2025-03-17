@@ -1,43 +1,40 @@
 // - - - Navigation - - - //
 const ARE_WE_HOME = document.documentElement.classList.contains('home');
-const ROOT_PATH = ARE_WE_HOME ? '' : '../';
-
+ 
 let pages = [
     { url: '', title: 'Home' },
-    { url: 'writeup/', title: 'Rationale' },
+    { url: 'writeup.html', title: 'Rationale' },
     { url: 'https://www.youtube.com/watch?v=qNCnkemnhIA', title: 'Prototype Video 🔗' },
 ];
-
+ 
 let nav = document.createElement('nav');
 document.body.prepend(nav);
 
+// Get the directory path from the current URL
+const currentPath = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
+ 
 for (let p of pages) {
     let url = p.url;
     let title = p.title;
-    
-    // Handle relative URLs properly
-    if (!url.startsWith('http') && !ARE_WE_HOME) {
-        url = ROOT_PATH + url;
+
+    // Construct the correct URL by combining current directory path with the page URL
+    if (!url.startsWith('http')) {
+        url = currentPath + url;
     }
-    
+
     let a = document.createElement('a');
     a.href = url;
     a.textContent = title;
-    
-    // Handle external links
+
     if (a.host !== location.host) {
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
+        a.target = '_blank';
     }
-    
-    // Mark current page, normalize paths for comparison
-    let currentPath = location.pathname.replace(/\/$/, '');
-    let linkPath = a.pathname.replace(/\/$/, '');
-    if (a.host === location.host && linkPath === currentPath) {
+
+    // Check if this is the current page
+    if (a.host === location.host && location.pathname === a.pathname) {
         a.classList.add('current');
-        a.setAttribute('aria-current', 'page');
     }
-    
+
     nav.append(a);
 }
 
