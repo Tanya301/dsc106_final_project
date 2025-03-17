@@ -3,7 +3,7 @@ const ARE_WE_HOME = document.documentElement.classList.contains('home');
 
 let pages = [
     { url: '', title: 'Home' },
-    { url: 'writeup.html', title: 'Rationale' },
+    { url: 'writeup/', title: 'Rationale' },
     { url: 'https://www.youtube.com/watch?v=qNCnkemnhIA', title: 'Prototype Video 🔗' },
 ];
 
