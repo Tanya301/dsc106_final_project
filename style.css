@@ -74,7 +74,7 @@ p {
 /* End of header styling */
 
 /* Styling for the images */
-.image-container {
+.image-container-surgery-types, .image-container-departments {
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -89,8 +89,16 @@ p {
     position: relative;
     display: flex;
     flex: 1 1 calc(25% - 20px); 
-    max-width: 25%;
+    /* max-width: 15%; */
     z-index: 1;
+}
+
+.image-container-departments .image-wrapper {
+    max-width: 15%;
+}
+
+.image-container-surgery-types .image-wrapper {
+    max-width: 25%;
 }
 
 .image-wrapper img {
