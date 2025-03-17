@@ -45,21 +45,19 @@ a:hover {
 /* End of navigation */
 
 /* Styling the info boxes */
-.header-container, .barchart-info-container, .sankey-info-container {
+.header-container, .sankey-info-container {
     max-width: auto;
     margin: 20px auto;
     padding: 20px;
     background-color: #f9f9f9;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-}
-
-.barchart-info-container, .sankey-info-container {
     border-left: 4px solid #4CAF50;
 }
 
 h1 {
     color: #2c3e50;
+    font-size:25px;
 }
 
 p {
