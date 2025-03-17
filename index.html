@@ -10,7 +10,7 @@
 </head>
 <body>
     <!-- Styling for the head container -->
-    <div class="header-container">
+    <div class="info-container">
         <h1>How long will a patient stay in the hospital to recover from surgery?</h1>
         <div class="description">
             <p>Have you ever thought about what happens when you undergo surgery? You likely have questions going through your mind, such as:</p>
@@ -148,7 +148,7 @@
             <!-- <p>The diagram depicts the flow from the surgical departments into operation types (open, videoscopic, robotic), and then the outcomes.</p> -->
         </div>
         <h2>Different Ways to Interact</h2>
-        <h2 class="collapse">
+        <!-- <h2 class="collapse">
             <span class="toggle-indicator">&#9656;</span> Hovering
         </h2>
         <div class="content">
@@ -177,13 +177,21 @@
         </h2>
         <div class="content">
             <p class="detail">You can use the Reset View button to clear any filters and return to the diagram to its beginning state.</p>
-        </div>
+        </div> -->
+        <ul>
+            <li class="description">You can hover over connections to see detailed patient flow statistics, or click on specific nodes to filter the diagram and focus on particular pathways.</li>
+            <li class="description">The width of each flow represents the volume of patients following that particular pathway.</li>
+            <li class="description">You can click on a node to filter the diagram and focus on that pathway.</li>
+            <li class="description">Use the animation controls below to see how the diagram builds step by step, revealing patterns in surgical outcomes across departments and approaches.</li>
+            <li class="description">You can use the Reset View button to clear any filters and return to the diagram to its beginning state.</li>
+        </ul>
     </div>
 
     <!-- The interactive features for the Sankey Diagram -->
     <div class="container">
         <div class="flex-container">
-            <div class="info-box">
+            <!-- "How to interact" might be useless, commenting out for now -->
+            <!-- <div class="info-box">
                 <strong>How to interact:</strong>
                 <ul>
                     <li>Hover over connections to see the patient flow</li>
@@ -191,7 +199,7 @@
                     <li>Use the animation controls to see the diagram build step by step</li>
                     <li>Use the Reset button to clear any filters and return to the full view</li>
                 </ul>
-            </div>
+            </div> -->
             <div class="legend-container"></div>
         </div>
 

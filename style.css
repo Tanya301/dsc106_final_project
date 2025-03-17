@@ -1,8 +1,10 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f5f5f5;
+    /* background-color: #f5f5f5; */
+    max-width: 150ch;
+    margin-inline: auto;
+    padding: 2%;
+    
 }
 
 /* Navigation */
@@ -39,17 +41,17 @@ a:hover {
     background-color: oklch(from var(--color-accent) 95% 5% h);
     /* color-mix worked weird with my accent color (green), so i chose to define the colors separately */
     /* background-color: color-mix(in oklch, var(--color-accent) 70%, black 30%); */
-    background-color: light-dark(oklch(from var(--color-accent) 95% 5% h), oklch(from var(--color-accent)  20% 80% h));
+    background-color: oklch(from var(--color-accent) 95% 5% h);
     transition: 300ms;
 }
 /* End of navigation */
 
 /* Styling the info boxes */
-.header-container, .info-container {
+.info-container {
     max-width: auto;
     margin: 20px auto;
     padding: 20px;
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9; */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     border-left: 4px solid #4CAF50;
@@ -80,7 +82,7 @@ p {
     max-width: auto;
     margin: 20px auto;
     padding: 20px;
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9; */
     border-left: 4px solid #4CAF50;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
@@ -139,7 +141,8 @@ p {
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
-    background-color: white;
+    /* background-color: white; */
+    /* background-color: #f5f5f5; */
     max-width: auto;
     flex-wrap: wrap;
     z-index: 0;
@@ -153,13 +156,13 @@ p {
     z-index: 1;
 }
 
-.image-container-departments .image-wrapper {
+/* .image-container-departments .image-wrapper {
     max-width: 15%;
-}
+} */
 
-.image-container-surgery-types .image-wrapper {
+/* .image-container-surgery-types .image-wrapper {
     max-width: 25%;
-}
+} */
 
 .image-wrapper img {
     width: 100%;
@@ -228,7 +231,7 @@ p {
 
 .description {
     color: #666;
-    text-align: center;
+    /* text-align: center; */
     margin-bottom: 30px;
     max-width: auto;
     margin-left: auto;
