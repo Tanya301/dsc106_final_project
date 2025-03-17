@@ -140,9 +140,9 @@ function createRealDataStructure(rawData) {
             type: "approach"
         })),
         // Outcome nodes (pre-defined)
-        { id: "Survived - Short Stay", name: "Survived (< 3 days)", type: "outcome" },
-        { id: "Survived - Medium Stay", name: "Survived (3-7 days)", type: "outcome" },
-        { id: "Survived - Long Stay", name: "Survived (> 7 days)", type: "outcome" },
+        { id: "Survived - Short Stay", name: "Recovery < 3 days", type: "outcome" },
+        { id: "Survived - Medium Stay", name: "Recovery 3-7 days", type: "outcome" },
+        { id: "Survived - Long Stay", name: "Recovery > 7 days", type: "outcome" },
         { id: "Died", name: "Died", type: "outcome" }
     ];
     
