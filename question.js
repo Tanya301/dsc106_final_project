@@ -13,30 +13,239 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: "videoscopic", name: "Videoscopic", description: "Surgery using a small scope to project a magnified image of the body onto a larger monitor to assist surgeons." },
             { id: "robotic", name: "Robotic", description: "A more experimental procedure involving robotic assistance during the operation." }
         ],
-        outcomes: {
-            open: {
-                death: 1.2,
-                recovery: {
-                    "within3days": 39.5,
-                    "within3to7days": 39.5,
-                    "over7days": 19.8
+        // Cache for calculated outcomes
+        _cachedOutcomes: null,
+        
+        // Method to clear the cache and force a refresh
+        clearCache: function() {
+            console.log("Clearing outcomes cache");
+            this._cachedOutcomes = null;
+        },
+        
+        calculateOutcomes: async function() {
+            // If we already have calculated outcomes, return them
+            if (this._cachedOutcomes) {
+                console.log("Using cached outcomes data");
+                return this._cachedOutcomes;
+            }
+            
+            // Convert caseend from minutes to days
+            const MINUTES_PER_DAY = 1440;
+            
+            // Group cases by surgery type
+            const casesByType = {
+                open: [],
+                videoscopic: [],
+                robotic: []
+            };
+
+            try {
+                // Read and process cases.csv
+                let data;
+                // Try to fetch the data with retries
+                const maxRetries = 3;
+                let retryCount = 0;
+                let fetchError = null;
+                
+                while (retryCount < maxRetries) {
+                    try {
+                        console.log(`Attempting to fetch CSV data (attempt ${retryCount + 1}/${maxRetries})...`);
+                        const response = await fetch('cases.csv');
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        data = await response.text();
+                        console.log("CSV data fetched successfully");
+                        fetchError = null;
+                        break;
+                    } catch (error) {
+                        fetchError = error;
+                        console.error(`Error fetching CSV file (attempt ${retryCount + 1}/${maxRetries}):`, error);
+                        retryCount++;
+                        // Wait before retrying (exponential backoff)
+                        if (retryCount < maxRetries) {
+                            const waitTime = Math.min(1000 * Math.pow(2, retryCount), 5000);
+                            console.log(`Waiting ${waitTime}ms before retrying...`);
+                            await new Promise(resolve => setTimeout(resolve, waitTime));
+                        }
+                    }
                 }
-            },
-            videoscopic: {
-                death: 0.5,
-                recovery: {
-                    "within3days": 39.8,
-                    "within3to7days": 39.8,
-                    "over7days": 19.9 
+                
+                // If all fetch attempts failed, throw the last error
+                if (fetchError) {
+                    throw fetchError;
                 }
-            },
-            robotic: {
-                death: 1.1,
-                recovery: {
-                    "within3days": 39.4,
-                    "within3to7days": 39.4,
-                    "over7days": 20.1
+                // Process the CSV data
+                console.log("Processing CSV data...");
+                const rows = data.split('\n');
+                
+                // Check if we have data to process
+                if (rows.length <= 1) {
+                    throw new Error("CSV file is empty or contains only headers");
                 }
+                
+                // Get header row to identify column indices
+                const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
+                
+                // Based on the actual CSV structure:
+                // - 'optype' is the surgery type (column 20)
+                // - 'death_inhosp' is the death indicator (column 11)
+                // - 'caseend' is the recovery time (column 3)
+                const surgeryTypeIndex = headers.indexOf('optype');
+                const deathIndex = headers.indexOf('death_inhosp');
+                const recoveryTimeIndex = headers.indexOf('caseend');
+                
+                console.log("Found column indices:", {
+                    surgeryType: surgeryTypeIndex,
+                    death: deathIndex,
+                    recoveryTime: recoveryTimeIndex
+                });
+                
+                // Validate that we found the required columns
+                if (surgeryTypeIndex === -1 || deathIndex === -1 || recoveryTimeIndex === -1) {
+                    console.error("Required columns not found in CSV:", {
+                        headers,
+                        surgeryTypeIndex,
+                        deathIndex,
+                        recoveryTimeIndex
+                    });
+                    throw new Error("CSV file is missing required columns");
+                }
+                
+                // Process data rows
+                rows.slice(1).forEach(row => {
+                    if (!row.trim()) return; // Skip empty rows
+                    
+                    const columns = row.split(',');
+                    // Make sure we have enough columns
+                    if (columns.length <= Math.max(surgeryTypeIndex, deathIndex, recoveryTimeIndex)) {
+                        console.warn("Skipping row with insufficient columns:", row);
+                        return;
+                    }
+                    
+                    // Get the surgery type from the CSV and map it to our expected categories
+                    let rawSurgeryType = columns[surgeryTypeIndex] ? columns[surgeryTypeIndex].toLowerCase().trim() : null;
+                    let surgeryType = null;
+                    
+                    // Map the surgery approach to our categories
+                    const approach = columns[headers.indexOf('approach')] ? columns[headers.indexOf('approach')].toLowerCase().trim() : '';
+                    
+                    if (approach === 'open') {
+                        surgeryType = 'open';
+                    } else if (approach === 'videoscopic') {
+                        surgeryType = 'videoscopic';
+                    } else if (approach.includes('robot')) {
+                        surgeryType = 'robotic';
+                    } else {
+                        // Default to open if approach is not specified
+                        surgeryType = 'open';
+                    }
+                    
+                    const death = parseInt(columns[deathIndex]) || 0;
+                    const recoveryMinutes = parseInt(columns[recoveryTimeIndex]) || 0;
+                    const recoveryDays = recoveryMinutes / MINUTES_PER_DAY;
+                    
+                    if (surgeryType && casesByType[surgeryType]) {
+                        casesByType[surgeryType].push({
+                            death,
+                            recoveryDays,
+                            department: columns[headers.indexOf('department')] || '',
+                            rawSurgeryType
+                        });
+                    }
+                });
+                
+                // Log the number of cases processed for each type
+                Object.entries(casesByType).forEach(([type, cases]) => {
+                    console.log(`Processed ${cases.length} cases for ${type} surgery`);
+                    
+                    // Log sample data for debugging
+                    if (cases.length > 0) {
+                        console.log(`Sample case for ${type}:`, cases[0]);
+                    }
+                    
+                    // Log departments found for each surgery type
+                    const departments = [...new Set(cases.map(c => c.department))];
+                    console.log(`Departments for ${type} surgery:`, departments);
+                });
+                
+                // Check if we have any data at all
+                const totalCases = Object.values(casesByType).reduce((sum, cases) => sum + cases.length, 0);
+                if (totalCases === 0) {
+                    console.warn("No valid cases found in the CSV file");
+                }
+
+                // Calculate statistics for each surgery type
+                const outcomes = {};
+                for (const [type, cases] of Object.entries(casesByType)) {
+                    const totalCases = cases.length;
+                    if (totalCases === 0) {
+                        console.warn(`No cases found for ${type} surgery type`);
+                        outcomes[type] = {
+                            death: "0.0",
+                            recovery: {
+                                within3days: "0.0",
+                                within3to7days: "0.0",
+                                over7days: "0.0"
+                            }
+                        };
+                        continue;
+                    }
+
+                    const deaths = cases.filter(c => c.death === 1).length;
+                    const recoveryTimes = cases.filter(c => c.death === 0).map(c => c.recoveryDays);
+                    
+                    outcomes[type] = {
+                        death: ((deaths / totalCases) * 100).toFixed(1),
+                        recovery: {
+                            within3days: ((recoveryTimes.filter(d => d <= 3).length / totalCases) * 100).toFixed(1),
+                            within3to7days: ((recoveryTimes.filter(d => d > 3 && d <= 7).length / totalCases) * 100).toFixed(1),
+                            over7days: ((recoveryTimes.filter(d => d > 7).length / totalCases) * 100).toFixed(1)
+                        }
+                    };
+                }
+                
+                // Cache the calculated outcomes
+                this._cachedOutcomes = outcomes;
+                console.log("Outcomes calculated successfully:", outcomes);
+                return outcomes;
+            } catch (error) {
+                console.error('Error processing cases data:', error);
+                
+                // Instead of generating synthetic data, we'll return empty data
+                // to indicate that real data couldn't be loaded
+                console.log("Unable to process CSV data. No fallback data will be used.");
+                
+                const emptyData = {
+                    open: {
+                        death: "N/A",
+                        recovery: {
+                            within3days: "N/A",
+                            within3to7days: "N/A",
+                            over7days: "N/A"
+                        }
+                    },
+                    videoscopic: {
+                        death: "N/A",
+                        recovery: {
+                            within3days: "N/A",
+                            within3to7days: "N/A",
+                            over7days: "N/A"
+                        }
+                    },
+                    robotic: {
+                        death: "N/A",
+                        recovery: {
+                            within3days: "N/A",
+                            within3to7days: "N/A",
+                            over7days: "N/A"
+                        }
+                    }
+                };
+                
+                // Cache the empty outcomes
+                this._cachedOutcomes = emptyData;
+                return emptyData;
             }
         }
     };
@@ -291,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // updateQuizButtonStates();
     }
 
-    function showResults() {
+    async function showResults() {
         // Clear the questionnaire container
         questionnaireContainer.innerHTML = '';
         
@@ -306,8 +515,68 @@ document.addEventListener('DOMContentLoaded', function() {
         const department = surgicalData.departments.find(d => d.id === currentState.department);
         const surgeryType = surgicalData.surgeryTypes.find(t => t.id === currentState.surgeryType);
         
-        // Get outcome data
-        const outcomes = surgicalData.outcomes[currentState.surgeryType];
+        // Get outcome data with proper error handling
+        let outcomes;
+        try {
+            // Clear cache if this is a new session or if explicitly requested
+            if (sessionStorage.getItem('clearCache') === 'true') {
+                surgicalData.clearCache();
+                sessionStorage.removeItem('clearCache');
+            }
+            
+            // Show loading indicator
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.classList.add('loading-indicator');
+            loadingIndicator.innerHTML = '<p>Loading outcome data...</p>';
+            resultsContainer.appendChild(loadingIndicator);
+            
+            // Fetch outcomes data
+            console.log(`Fetching outcomes data for ${currentState.surgeryType} surgery type...`);
+            const allOutcomes = await surgicalData.calculateOutcomes();
+            
+            // Remove loading indicator
+            resultsContainer.removeChild(loadingIndicator);
+            
+            outcomes = allOutcomes[currentState.surgeryType];
+            
+            if (!outcomes) {
+                throw new Error(`No outcome data available for ${currentState.surgeryType} surgery type`);
+            }
+            
+            console.log(`Retrieved outcomes for ${currentState.surgeryType}:`, outcomes);
+        } catch (error) {
+            console.error('Error getting outcome data:', error);
+            
+            // Show error message to user
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('error-message');
+            errorMessage.innerHTML = `
+                <p>We encountered an issue retrieving data from the CSV file.</p>
+                <p>No data is available for this selection. <button id="retryDataBtn">Retry</button></p>
+            `;
+            resultsContainer.appendChild(errorMessage);
+            
+            // Add retry button functionality
+            setTimeout(() => {
+                const retryBtn = document.getElementById('retryDataBtn');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', () => {
+                        sessionStorage.setItem('clearCache', 'true');
+                        showResults();
+                    });
+                }
+            }, 0);
+            
+            // Create fallback data if outcomes couldn't be retrieved
+            outcomes = {
+                death: "N/A",
+                recovery: {
+                    within3days: "N/A",
+                    within3to7days: "N/A",
+                    over7days: "N/A"
+                }
+            };
+        }
         
         // Create summary section
         const summary = document.createElement('div');
@@ -325,11 +594,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const outcomesList = document.createElement('ul');
         outcomesList.classList.add('outcomes-list');
         
+        // Format values for display, handling potential non-numeric values
+        const formatValue = (value) => {
+            if (value === "N/A") return value;
+            return isNaN(parseFloat(value)) ? "0.0%" : `${value}%`;
+        };
+        
         outcomesList.innerHTML = `
-            <li class="stat-item"><span class="stat-value">${outcomes.death}%</span> chance of death</li>
-            <li class="stat-item"><span class="stat-value">${outcomes.recovery.within3days}%</span> chance of recovering within 3 days</li>
-            <li class="stat-item"><span class="stat-value">${outcomes.recovery.within3to7days}%</span> chance of recovering within 3-7 days</li>
-            <li class="stat-item"><span class="stat-value">${outcomes.recovery.over7days}%</span> chance of recovering within 7+ days</li>
+            <li class="stat-item"><span class="stat-value">${formatValue(outcomes.death)}</span> chance of death</li>
+            <li class="stat-item"><span class="stat-value">${formatValue(outcomes.recovery.within3days)}</span> chance of recovering within 3 days</li>
+            <li class="stat-item"><span class="stat-value">${formatValue(outcomes.recovery.within3to7days)}</span> chance of recovering within 3-7 days</li>
+            <li class="stat-item"><span class="stat-value">${formatValue(outcomes.recovery.over7days)}</span> chance of recovering within 7+ days</li>
         `;
         
         statistics.appendChild(outcomesList);
@@ -338,15 +613,47 @@ document.addEventListener('DOMContentLoaded', function() {
         const storyContainer = document.createElement('div');
         storyContainer.classList.add('story-container');
         
-        storyContainer.innerHTML = `
-            <p>Based on your selections, here's what you might expect:</p>
-            <p>You'll undergo ${surgeryType.name.toLowerCase()} surgery in the ${department.name.toLowerCase()} department. 
-            The good news is that you have a <strong>${outcomes.recovery.within3days}%</strong> chance of recovering within just 3 days.</p>
-            <p>Most patients (about <strong>${outcomes.recovery.within3to7days + outcomes.recovery.within3days}%</strong>) 
-            are able to recover within a week. The mortality risk is relatively low at <strong>${outcomes.death}%</strong>.</p>
-            <p>Remember that these are statistical averages and your individual experience may vary based on your specific condition, 
-            overall health, and how well you follow post-operative care instructions.</p>
-        `;
+        // Calculate combined recovery rate within a week, handling potential non-numeric values
+        let withinWeekRecovery = "N/A";
+        if (outcomes.recovery.within3days !== "N/A" && outcomes.recovery.within3to7days !== "N/A") {
+            const within3 = parseFloat(outcomes.recovery.within3days) || 0;
+            const within3to7 = parseFloat(outcomes.recovery.within3to7days) || 0;
+            withinWeekRecovery = (within3 + within3to7).toFixed(1);
+        }
+        
+        // Check if we have any real data
+        const hasRealData = outcomes.death !== "N/A" ||
+                           outcomes.recovery.within3days !== "N/A" ||
+                           outcomes.recovery.within3to7days !== "N/A" ||
+                           outcomes.recovery.over7days !== "N/A";
+        
+        if (hasRealData) {
+            storyContainer.innerHTML = `
+                <p>Based on your selections and <strong>real data from the CSV file</strong>, here's what you might expect:</p>
+                <p>You'll undergo ${surgeryType.name.toLowerCase()} surgery in the ${department.name.toLowerCase()} department.</p>
+                ${outcomes.recovery.within3days !== "N/A" ?
+                    `<p>The good news is that you have a <strong>${formatValue(outcomes.recovery.within3days)}</strong> chance of recovering within just 3 days.</p>` :
+                    `<p>Recovery time data within 3 days is not available in the CSV file.</p>`
+                }
+                ${withinWeekRecovery !== "N/A" ?
+                    `<p>Most patients (about <strong>${withinWeekRecovery}%</strong>) are able to recover within a week.</p>` :
+                    ``
+                }
+                ${outcomes.death !== "N/A" ?
+                    `<p>The mortality risk is ${parseFloat(outcomes.death) < 1 ? "very low" : "relatively low"} at <strong>${formatValue(outcomes.death)}</strong>.</p>` :
+                    `<p>Mortality risk data is not available in the CSV file.</p>`
+                }
+                <p>Remember that these are statistical averages based on real patient data and your individual experience may vary based on your specific condition,
+                overall health, and how well you follow post-operative care instructions.</p>
+            `;
+        } else {
+            storyContainer.innerHTML = `
+                <p>We couldn't retrieve any data from the CSV file for your selection.</p>
+                <p>You selected ${surgeryType.name.toLowerCase()} surgery in the ${department.name.toLowerCase()} department.</p>
+                <p>Please try a different selection or check if the CSV file contains the appropriate data.</p>
+                <p>All statistics shown are based solely on data from the CSV file with no synthetic or hardcoded values.</p>
+            `;
+        }
         
         // Create retry button
         const retryButton = document.createElement('button');
@@ -416,19 +723,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300); // Small delay for better user experience
     }
 
-    // Generate a sample Sankey diagram for the main visualization (placeholder)
-    function generateSankeyData() {
+    // Generate data for the Sankey diagram visualization
+    async function generateSankeyData() {
         if (!currentState.department || !currentState.surgeryType) {
             return null;
         }
         
-        // This would be implemented in the main visualization file
-        // Just a placeholder for now
-        return {
-            department: currentState.department,
-            surgeryType: currentState.surgeryType,
-            outcomes: surgicalData.outcomes[currentState.surgeryType]
-        };
+        try {
+            // Fetch the latest outcomes data
+            const outcomes = await surgicalData.calculateOutcomes();
+            
+            if (!outcomes || !outcomes[currentState.surgeryType]) {
+                console.warn(`No outcome data available for ${currentState.surgeryType} surgery type`);
+                return {
+                    department: currentState.department,
+                    surgeryType: currentState.surgeryType,
+                    outcomes: null,
+                    dataSource: "No data available from CSV"
+                };
+            }
+            
+            return {
+                department: currentState.department,
+                surgeryType: currentState.surgeryType,
+                outcomes: outcomes[currentState.surgeryType],
+                dataSource: "CSV data"
+            };
+        } catch (error) {
+            console.error("Error generating Sankey data:", error);
+            return {
+                department: currentState.department,
+                surgeryType: currentState.surgeryType,
+                outcomes: null,
+                dataSource: "Error retrieving data from CSV"
+            };
+        }
     }
 
     // Add dynamic CSS for questionnaire UI
@@ -598,6 +927,44 @@ function addQuestionnaireStyling() {
         
         .retry-button:hover {
             background-color: #3e8e41;
+        }
+        
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .error-message {
+            padding: 15px;
+            margin: 15px 0;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            color: #856404;
+        }
+        
+        .error-message button {
+            background-color: #856404;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .error-message button:hover {
+            background-color: #6a5003;
         }
     `;
     document.head.appendChild(styleSheet);
