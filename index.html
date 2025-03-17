@@ -141,7 +141,7 @@
             <p>The interactive Sankey diagram below tracks how patients flow from: 
             <ul>
                 <p class="emphasis">1. Surgical Departments</p>
-                <p class="emphasis">2. Surgical Outcomes</p>
+                <p class="emphasis">2. Surgical Procedures</p>
                 <p class="emphasis">3. Patient Recovery Outcomes</p>
             </ul>    
             
@@ -200,7 +200,6 @@
                     <li>Use the Reset button to clear any filters and return to the full view</li>
                 </ul>
             </div> -->
-            <div class="legend-container"></div>
         </div>
 
         <div class="step-indicator">
@@ -216,7 +215,11 @@
             <button id="nextBtn">Next Step</button>
         </div>
         
-        <div id="chart"></div>
+        <div class="flex-container">
+            <div class="legend-container"></div>
+            <div id="chart"></div>
+        </div>
+        
     </div>
 
     <!-- External scripts -->

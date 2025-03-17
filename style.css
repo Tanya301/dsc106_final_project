@@ -39,8 +39,6 @@ a:hover {
     padding-bottom: 1px;
     border-bottom-style: solid;
     background-color: oklch(from var(--color-accent) 95% 5% h);
-    /* color-mix worked weird with my accent color (green), so i chose to define the colors separately */
-    /* background-color: color-mix(in oklch, var(--color-accent) 70%, black 30%); */
     background-color: oklch(from var(--color-accent) 95% 5% h);
     transition: 300ms;
 }
@@ -124,7 +122,6 @@ p {
     padding-left: 1em;
     text-align: left;
     color: #000080;
-    padding-left: 1em;
     text-align: left;
     font-style: italic;
 }
@@ -331,6 +328,10 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
     /* margin-top: 20px; */
 }
 
@@ -338,6 +339,7 @@ button:disabled {
     display: flex;
     align-items: center;
     margin: 5px 10px;
+    margin-bottom: 8px;
 }
 
 .legend-color {
@@ -345,13 +347,14 @@ button:disabled {
     height: 20px;
     margin-right: 8px;
     border-radius: 3px;
+    flex-shrink: 0;
 }
 
 .legend-line {
     width: 30px;
     height: 3px;
     margin-right: 8px;
-    /* margin-top: 8px; */
+    margin-top: 8px; 
 }
 
 .legend-line.input {
@@ -372,27 +375,33 @@ button:disabled {
 
 .flex-container {
     display: flex;
-    justify-content: space-between;
-    align-items: stretch;
+    justify-content: flex-start;
+    align-items: flex-start;
     gap: 20px;
 }
   
 .legend-container {
     flex: 1;
-    align-self: flex-start; /* Ensure it starts at the top */
-    min-height: 100px; /* Give it some minimum height */  
-}  
+    align-self: flex-start;  
+    min-height: 100px;
+    border: 2em;
+    width: 200px;
+    border: 1px solid rgb(210, 210, 210);
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    border-radius: 4px;
+}   
 
-.info-box {
+/* .info-box {
     flex: 1;
     background-color: #f9f9f9;
     border-left: 4px solid #4CAF50;
     padding: 15px;
-    /* margin-top: 20px; */
     font-size: 16px;
     line-height: 1.5;
     align-self: flex-start;
-}
+} */
 
 .story-container {
     font-size: 16px;
