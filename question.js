@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         startContainer.appendChild(heading);
         
         const description = document.createElement('p');
-        description.textContent = 'If you were about to undergo surgery, wouldn’t you want to know which department offers the best chances of recovery? This questionnaire will guide you in making an informed decision.';
+        description.textContent = 'If you were about to undergo surgery, wouldn’t you want to know which department offers the best chances of recovery?';
         startContainer.appendChild(description);
         
         const startButton = document.createElement('button');

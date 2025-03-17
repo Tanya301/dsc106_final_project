@@ -36,29 +36,12 @@ for (let p of pages) {
 }
 
 // - - - Images - - - //
-document.addEventListener("DOMContentLoaded", function () {
-    const imageWrappers = document.querySelectorAll(".image-wrapper");
-
-    imageWrappers.forEach(wrapper => {
-        const img = wrapper.querySelector("img");
-
-        // Create a tooltip dynamically
-        const tooltip = document.createElement("span");
-        tooltip.classList.add("tooltip");
-        tooltip.textContent = img.alt; // Set tooltip text to image alt attribute
-        wrapper.appendChild(tooltip);
-
-        // Show tooltip on hover
-        img.addEventListener("mouseenter", () => {
-            tooltip.style.display = "block";
-            tooltip.style.opacity = "1";
-        });
-
-        // Hide tooltip when not hovering
-        img.addEventListener("mouseleave", () => {
-            tooltip.style.display = "none";
-            tooltip.style.opacity = "0";
-        });
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.image-wrapper').forEach(function(wrapper) {
+        var img = wrapper.querySelector('img');
+        
+        // Set the data-tooltip attribute to the alt text of the image
+        wrapper.setAttribute('data-tooltip', img.alt);
     });
 });
 // - - - End of Images - - - //

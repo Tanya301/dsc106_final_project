@@ -10,6 +10,7 @@
     <script type="module" src="departments.js"></script>
 </head>
 <body>
+    <!-- Styling for the head container -->
     <div class="header-container">
         <h1>How long will a patient stay in the hospital to recover from surgery?</h1>
         <div class="description">
@@ -19,31 +20,48 @@
             <p>To help alleviate these concerns, we investigated data from patients undergoing surgery at the Seoul National University Hospital, Republic of Korea.</p>
         </div>
     </div>
-    
-    <!-- <div class="image-container">
-        <img src="./images/digestive.avif" alt="The digestive system, addressed in the general surgery department">
-        <img src="./images/gynecology_white.jpg" alt="The female reproductive system, addressed in gynecology surgery department">
-        <img src="./images/thoracic.jpg" alt="The thoracic system, addressed in the thoracic surgery department">
-        <img src="./images/urology.jpg" alt="The urinary system, addressed in the urology surgery department">
-    </div> -->
+
+    <!-- The first set of images -->
     <div class="image-container">
         <div class="image-wrapper">
-            <img src="./images/digestive.avif" alt="The digestive system, addressed in the general surgery department">
+            <img src="./images/digestive.avif" alt="Organs treated in General Surgery" title="The digestive system, addressed in the general surgery department">
         </div>
         <div class="image-wrapper">
-            <img src="./images/gynecology_white.jpg" alt="The female reproductive system, addressed in gynecology surgery department">
+            <img src="./images/gynecology_white.jpg" alt="Organs treated in Gynecological Surgery" title="The female reproductive system, addressed in gynecology surgery department">
         </div>
         <div class="image-wrapper">
-            <img src="./images/thoracic.jpg" alt="The thoracic system, addressed in the thoracic surgery department">
+            <img src="./images/thoracic.jpg" alt="Organs treated in Thoracic Surgery" title="The thoracic system, addressed in the thoracic surgery department">
         </div>
         <div class="image-wrapper">
-            <img src="./images/urology.jpg" alt="The urinary system, addressed in the urology surgery department">
+            <img src="./images/urology.jpg" alt="Organs treated in Urology Surgery" title="The urinary system, addressed in the urology surgery department">
         </div>
-    </div>    
+    </div>
 
     <!-- Container for the questionnaire section -->
     <div class="questionnaire-section">
         <div id="questionnaire-container"></div>
+    </div>
+
+     <!-- The second set of images -->
+     <div class="image-container">
+        <div class="image-wrapper">
+            <img src="./images/open_surgery.jpg" alt="Open Surgery" title="Open surgery being performed on a patient">
+        </div>
+        <div class="image-wrapper">
+            <img src="./images/videoscopic_surgery.jpeg" alt="Videoscopic Surgery" title="A videoscopic endoscapic mitral valve repair">
+        </div>
+        <div class="image-wrapper">
+            <img src="./images/robotic_surgery.png" alt="Robotic Surgery" title="A robotic-assisted surgery being performed on a patient.">
+        </div>
+    </div>
+
+    <!-- Info block for bar chart -->
+    <div class="barchart-info-container">
+        <h1>What surgical department are you most likely to go in?</h1>
+        <div class="description">
+            <p>You may have an idea of which department you'd prefer for surgery, but how often do patients your age actually undergo procedures there?</p>                
+            <p>Explore which surgeries are most common for people in your age group below.</p>
+        </div>
     </div>
     
     <!-- The interactive barchart will be created by departments.js -->
@@ -54,6 +72,21 @@
         <div id="tooltip"></div>
     </div>
 
+    <!-- Info block for Sankey Diagram -->
+    <div class="sankey-info-container">
+        <h1>Putting it all together</h1>
+        <div class="description">
+            <p>Take a step back to see how different surgical departments compare.</p>             
+            <p>Interact with the Sankey Diagram below and see:</p>
+            <ul>
+                <li class="highlight">Surgical Departments</p>
+                <li class="highlight">Types of Surgeries Performed</p>
+                <li class="highlight">Patient Recovery Outcomes</p>
+            </ul>
+        </div>
+    </div>
+
+    <!-- The interactive features for the Sankey Diagram -->
     <div class="container">
         <div class="step-indicator">
             <button class="step sankey-step">1<div class="step-line"></div></button>
