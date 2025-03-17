@@ -1,5 +1,6 @@
 // - - - Navigation - - - //
 const ARE_WE_HOME = document.documentElement.classList.contains('home');
+const ROOT_PATH = ARE_WE_HOME ? '' : '../';
 
 let pages = [
     { url: '', title: 'Home' },
@@ -13,19 +14,30 @@ document.body.prepend(nav);
 for (let p of pages) {
     let url = p.url;
     let title = p.title;
-    // Create link and add it to nav
-    if (!ARE_WE_HOME && !url.startsWith('http')) {
-        url = '../' + url;
+    
+    // Handle relative URLs properly
+    if (!url.startsWith('http') && !ARE_WE_HOME) {
+        url = ROOT_PATH + url;
     }
+    
     let a = document.createElement('a');
     a.href = url;
     a.textContent = title;
+    
+    // Handle external links
     if (a.host !== location.host) {
-        a.target = '_blank';
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
     }
-    if (a.host === location.host && a.pathname === location.pathname) {
+    
+    // Mark current page, normalize paths for comparison
+    let currentPath = location.pathname.replace(/\/$/, '');
+    let linkPath = a.pathname.replace(/\/$/, '');
+    if (a.host === location.host && linkPath === currentPath) {
         a.classList.add('current');
+        a.setAttribute('aria-current', 'page');
     }
+    
     nav.append(a);
 }
 
