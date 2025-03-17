@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <script type="module" src="global.js"></script>
     <script type="module" src="question.js"></script>
-    <script type="module" src="departments.js"></script>
 </head>
 <body>
     <!-- Styling for the head container -->
@@ -53,23 +52,6 @@
         <div class="image-wrapper">
             <img src="./images/robotic_surgery.png" alt="Robotic Surgery" title="A robotic-assisted surgery being performed on a patient.">
         </div>
-    </div>
-
-    <!-- Info block for bar chart -->
-    <div class="barchart-info-container">
-        <h1>What surgical department are you most likely to go in?</h1>
-        <div class="description">
-            <p>You may have an idea of which department you'd prefer for surgery, but how often do patients your age actually undergo procedures there?</p>                
-            <p>Explore which surgeries are most common for people in your age group below.</p>
-        </div>
-    </div>
-    
-    <!-- The interactive barchart will be created by departments.js -->
-    <div class="container" id="departments_vis">
-        <button id="backButton" style="display: none;">Back to Main Visualization</button>
-        <div id="barchart"></div>
-        <div id="legend"></div>
-        <div id="tooltip"></div>
     </div>
 
     <!-- Info block for Sankey Diagram -->
