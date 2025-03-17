@@ -128,18 +128,33 @@
     <div class="sankey-info-container">
         <h1>Putting it all together</h1>
         <div class="description">
-            <p>Take a step back to see how different surgical departments compare.</p>             
-            <p>Interact with the Sankey Diagram below and see:</p>
+            <p>Take a step back to see how different surgical departments compare.</p>
+            <p>The interactive Sankey diagram below visualizes patient pathways across different surgical departments. The diagram tracks how patients flow from four surgical departments (General Surgery, Gynecology, Thoracic Surgery, and Urology) through various surgical approaches (Open, Robotic, and Videoscopic) to their recovery outcomes. You can hover over connections to see detailed patient flow statistics, or click on specific nodes to filter the diagram and focus on particular pathways. Use the animation controls below to see how the diagram builds step by step, revealing patterns in surgical outcomes across departments and approaches. The width of each flow represents the volume of patients following that particular pathway.</p>            
+            <p>Interact with the Sankey Diagram and see:</p>
             <ul>
                 <li class="highlight">Surgical Departments</p>
                 <li class="highlight">Types of Surgeries Performed</p>
                 <li class="highlight">Patient Recovery Outcomes</p>
             </ul>
+            <!-- <p>The diagram depicts the flow from the surgical departments into operation types (open, videoscopic, robotic), and then the outcomes.</p> -->
         </div>
     </div>
 
     <!-- The interactive features for the Sankey Diagram -->
     <div class="container">
+        <div class="flex-container">
+            <div class="info-box">
+                <strong>How to interact:</strong>
+                <ul>
+                    <li>Hover over connections to see the patient flow</li>
+                    <li>Click on a node to filter the diagram and focus on that pathway</li>
+                    <li>Use the animation controls to see the diagram build step by step</li>
+                    <li>Use the Reset button to clear any filters and return to the full view</li>
+                </ul>
+            </div>
+            <div class="legend-container"></div>
+        </div>
+
         <div class="step-indicator">
             <button class="step sankey-step">1<div class="step-line"></div></button>
             <button class="step sankey-step">2<div class="step-line"></div></button>
@@ -154,19 +169,6 @@
         </div>
         
         <div id="chart"></div>
-        
-        <div class="flex-container">
-            <div class="info-box">
-                <strong>How to interact:</strong>
-                <ul>
-                    <li>Hover over connections to see the patient flow</li>
-                    <li>Click on a node to filter the diagram and focus on that pathway</li>
-                    <li>Use the animation controls to see the diagram build step by step</li>
-                    <li>Use the Reset button to clear any filters and return to the full view</li>
-                </ul>
-            </div>
-            <div class="legend-container"></div>
-        </div>
     </div>
 
     <!-- External scripts -->

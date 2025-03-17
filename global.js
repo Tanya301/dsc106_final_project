@@ -266,7 +266,7 @@ function createSankeyDiagram() {
 
         // Create the storytelling container
         const storyContainer = d3.select("#chart")
-            .insert("div", ":first-child") // Insert before the first child (SVG)
+            .insert("div")
             .attr("id", "story-container")
             .attr("class", "story-container")
 
