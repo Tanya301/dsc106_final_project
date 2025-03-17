@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writeup</title>
+    <link rel="stylesheet" href="../style.css">
+    <script type="module" src="../global.js"></script>
+</head>
+<body>
+    <div class="info-container">
+        <h1>Project Context</h1>    
+        <div class="description">
+            <p>What if we could predict how long a patient will stay in the hospital based on their surgery and department? </p>
+            <p>By visualizing recovery times across departments and surgery types, this project uncovers patterns in patient outcomes, helping hospitals optimize care, allocate resources efficiently, and improve recovery experiences.</p>
+            <p>Through data-driven insights, we can bridge the gap between medical procedures and patient recovery expectations.</p>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <h1>Motivation</h1>    
+        <div class="description">
+            <p>Hospitals and healthcare providers optimize patient care by understanding how long patients take to recover based on surgery type and department.</p>
+            <p>To help our audience understand this process, we started by breaking down what each surgical department specialized in.</p>
+            <p>Then, we allowed prospective patients to explore what departments were the most reliable through our Surgical Pathways Quiz.</p>
+            <p>Afterwards, we elaborated on the different kinds surgical procedures.</p>
+            <p>From there, our next step was to zoom out and give our audience an overview of patient recovery expectations based on surgical department and type of procedure being performed.</p>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <h1>Sankey Diagram Rationale</h1>    
+        <div class="description">
+            <p>A Sankey diagram is uniquely suited for our exploration because it shows the flow of patients through different stages of recovery, unlike standard charts that only present aggregated numbers.</p>
+            <p>Unlike bar charts or scatter plots, it illustrates multiple variables at once (e.g., department, surgery type, and recovery duration).</p>
+            <p>The most interesting feature is the hover tooltip, you can see the information about patient number and percentages.</p>
+            <p>The most difficult part of implementation was making sure the data was parsed into the Sankey Diagram correctly.</p>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <h1>Key Takeaways</h1>    
+        <div class="description">
+            <p>An interesting takeaway is that robotic surgery is among the lowest across departments, as seen in the robotic pathway of our visualization.</p>
+            <p>One thing everyone should learn is the different recovery periods within each surgery type in departments and the flow of the diagram is what helps the visualization succeed in explaining it.</p>
+        </div>
+    </div>
+</body>
+</html>
