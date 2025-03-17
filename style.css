@@ -158,13 +158,13 @@ li {
     z-index: 1;
 }
 
-/* .image-container-departments .image-wrapper {
+.image-container-departments .image-wrapper {
     max-width: 15%;
-} */
+}
 
-/* .image-container-surgery-types .image-wrapper {
+.image-container-surgery-types .image-wrapper {
     max-width: 25%;
-} */
+}
 
 .image-wrapper img {
     width: 100%;
