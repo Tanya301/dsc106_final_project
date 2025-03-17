@@ -126,9 +126,14 @@ p {
     font-style: italic;
 }
 
+li {
+    padding-left: 3em;
+}
+
 .detail {
     padding-left: 2em;
     text-align: left;
+    line-height: 1.6;
 }
 /* End of info textbox */
 
